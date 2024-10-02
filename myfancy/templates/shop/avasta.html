@@ -1,0 +1,342 @@
+{% extends "shop/base.html" %}
+{% block main_block %}
+<div class="mx-auto max-w-7xl px-4 md:px-8 2xl:px-16">
+  <div class="pt-8">
+  </div>
+  <div class="block grid-cols-9 items-start gap-x-10 pb-10 pt-7 lg:grid lg:pb-14 xl:gap-x-14 2xl:pb-20">
+    <div class="col-span-5 grid grid-cols-2 gap-2.5">
+      <div class="col-span-1 transition duration-150 ease-in hover:opacity-90">
+        <img
+          src="{{ product.image.url }}" 
+          alt="Nike Air Max 95 By You--0"
+          class="w-full object-cover"
+        />
+      </div>
+      <div class="col-span-1 transition duration-150 ease-in hover:opacity-90">
+        <img
+          src="{{ product.image.url }}" 
+          alt="Nike Air Max 95 By You--0"
+          class="w-full object-cover"
+        />
+      </div>
+      <div class="col-span-1 transition duration-150 ease-in hover:opacity-90">
+        <img
+          src="{{ product.image.url }}" 
+          alt="Nike Air Max 95 By You--0"
+          class="w-full object-cover"
+        />
+      </div>
+      <div class="col-span-1 transition duration-150 ease-in hover:opacity-90">
+        <img
+          src="{{ product.image.url }}" 
+          alt="Nike Air Max 95 By You--0"
+          class="w-full object-cover"
+        />
+      </div>
+    </div>
+    <div class="col-span-4 pt-8 lg:pt-0">
+      <div class="mb-7 border-b border-gray-300 pb-7">
+        <!-- Display the product title and description -->
+        <h2 class="text-heading mb-3.5 text-lg font-bold md:text-xl lg:text-2xl 2xl:text-3xl">
+          {{ product.title }}
+        </h2>
+        <p class="text-body text-sm leading-6 lg:text-base lg:leading-8">
+          {{ product.description }}
+        </p>
+        <div class="mt-5 flex items-center">
+          <!-- Display the price -->
+          <div id="product-price" class="text-heading pr-2 text-base font-bold md:pr-0 md:text-xl lg:pr-2 lg:text-2xl 2xl:pr-0 2xl:text-4xl">
+            ₹{{ product.product_variants.first.price }}
+          </div>
+        </div>
+      </div>
+      <div class="border-b border-gray-300 pb-3">
+        <!-- Display sizes -->
+        <h3 class="text-heading mb-2.5 text-base font-semibold capitalize md:text-lg">
+          Size
+        </h3>
+        <ul id="size-list" class="sizes -mr-3 flex flex-wrap">
+          {% for variant in product.product_variants.all %}
+            {% for size in variant.size_object.all %}
+              <li class="text-heading mb-2 mr-2 flex h-9 w-9 cursor-pointer items-center justify-center rounded border border-gray-100 p-1 text-xs font-semibold uppercase transition duration-200 ease-in-out hover:border-black md:mb-3 md:mr-3 md:h-11 md:w-11 md:text-sm"
+                  data-size="{{ size.id }}"
+                  data-colors="{{ variant.colour_object.all|join:',' }}"
+                  data-price="{{ variant.price }}">
+                {{ size.name }}
+              </li>
+            {% endfor %}
+          {% endfor %}
+        </ul>
+
+        <!-- Display colors -->
+        <h3 class="text-heading mb-2.5 text-base font-semibold capitalize md:text-lg">
+          Color
+        </h3>
+        <ul id="color-list" class="colors -mr-3 flex flex-wrap">
+          <!-- Colors will be dynamically updated when a size is selected -->
+        </ul>
+      </div>
+
+      <!-- Display other product details -->
+      <div class="py-6">
+        <ul class="space-y-5 pb-1 text-sm">
+          <li>
+            <span class="text-heading inline-block pr-2 font-semibold">
+              Type: 
+            </span>
+            {{ product.type_object }}
+          </li>
+          <li>
+            <span class="text-heading inline-block pr-2 font-semibold">
+              Material: 
+            </span>
+            {% for material in product.material_object.all %}
+              {{ material.name }}{% if not forloop.last %}, {% endif %}
+            {% endfor %}
+          </li>
+          <li>
+            <span class="text-heading inline-block pr-2 font-semibold">
+              Occasion:
+            </span>
+            {{ product.occasion_object }}
+          </li>
+          <li>
+            <span class="text-heading inline-block pr-2 font-semibold">
+              Feature: 
+            </span>
+            {% for feature in product.feature_object.all %}
+              {{ feature.name }}{% if not forloop.last %}, {% endif %}
+            {% endfor %}
+          </li>
+          <li>
+            <span class="text-heading inline-block pr-2 font-semibold">
+              Tags:
+            </span>
+            {% for tag in product.tag_object.all %}
+              {{ tag.title }}{% if not forloop.last %}, {% endif %}
+            {% endfor %}
+          </li>
+          <li>
+            <span class="text-heading inline-block pr-2 font-semibold">
+              Purchased Count :
+            </span>
+            {{product.product_variants.first.purchased_count}}
+          </li>
+        </ul>
+        <a href="{% url 'review-all' product.id%}"><h1 class="text-[20px] h-11 w-full rounded-md bg-black px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black text-center mt-3">Rating & Reviews({{product.review_count}})</h1></a>
+      </div>
+<form method="post" action="{% url 'addtocart' product.id %}">
+  {% csrf_token %}
+  
+  <!-- Hidden fields to store the selected size, color, and quantity -->
+  <input type="hidden" id="selected-size-name" name="size_name" value="">
+  <input type="hidden" id="selected-color-name" name="color_name" value="">
+  <input type="hidden" id="selected-quantity" name="quantity" value="1">
+  <input type="hidden" id="selected-price" name="price" value="{{ product.product_variants.first.price }}">
+  
+  <!-- Quantity and Add to Cart button -->
+  <div class="space-s-4 3xl:pr-48 flex items-center gap-2 border-b border-gray-300 py-8 md:pr-32 lg:pr-12 2xl:pr-32">
+      <div class="group flex h-11 flex-shrink-0 items-center justify-between overflow-hidden rounded-md border border-gray-300 md:h-12">
+          <button
+              id="decrement"
+              type="button"
+              class="text-heading hover:bg-heading flex h-full w-10 flex-shrink-0 items-center justify-center border-e border-gray-300 transition duration-300 ease-in-out focus:outline-none md:w-12"
+          >
+              -
+          </button>
+          <span
+              id="quantity"
+              class="duration-250 text-heading flex h-full w-12 flex-shrink-0 cursor-default items-center justify-center text-base font-semibold transition-colors ease-in-out md:w-20 xl:w-24"
+          >
+              1
+          </span>
+          <button
+              id="increment"
+              type="button"
+              class="text-heading hover:bg-heading flex h-full w-10 flex-shrink-0 items-center justify-center border-s border-gray-300 transition duration-300 ease-in-out focus:outline-none md:w-12"
+          >
+              +
+          </button>
+      </div>
+      <button
+          type="submit"
+          class="h-11 w-full rounded-md bg-black px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black"
+      >
+          Add to cart
+      </button>
+  </div>
+</form>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const sizes = document.querySelectorAll("#size-list li");
+    const colorList = document.querySelector("#color-list");
+    const priceDisplay = document.querySelector("#product-price");
+    const quantityDisplay = document.querySelector("#quantity");
+    const incrementButton = document.querySelector("#increment");
+    const decrementButton = document.querySelector("#decrement");
+  
+    let selectedSize = null;
+    let selectedColor = null;
+    let basePrice = parseInt(priceDisplay.textContent.replace("₹", "")); // Initial base price
+    let quantity = 1; // Default quantity
+  
+    const sizeInput = document.querySelector("#selected-size-name");
+    const colorInput = document.querySelector("#selected-color-name");
+    const quantityInput = document.querySelector("#selected-quantity");
+    const priceInput = document.querySelector("#selected-price");
+  
+    const colorClassMapping = {
+      "Gold": "bg-yellow-500",
+      "Silver": "bg-gray-300",
+      "Rose Gold": "bg-rose-300",
+      "Black": "bg-black",
+      "Pastel": "bg-pink-200",
+      "Multicolor": "bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500"
+    };
+  
+    sizes.forEach(size => {
+      size.addEventListener("click", function () {
+        sizes.forEach(s => s.classList.remove("border-black"));
+        this.classList.add("border-black");
+  
+        const selectedColors = this.getAttribute("data-colors").split(',');
+        const selectedPrice = this.getAttribute("data-price");
+  
+        selectedSize = this.textContent.trim();
+        basePrice = parseInt(selectedPrice); // Update base price
+        updatePrice(); // Recalculate price
+  
+        sizeInput.value = selectedSize;  // Set the size name
+  
+        selectedColor = null;  // Reset selected color
+        colorList.innerHTML = "";  // Clear existing colors
+  
+        selectedColors.forEach(color => {
+          const colorClass = colorClassMapping[color.trim()] || "bg-gray-200";
+          colorList.innerHTML += `
+            <li class="color-option text-heading mb-2 mr-2 flex h-9 w-9 cursor-pointer items-center justify-center rounded border border-gray-100 p-1 text-xs font-semibold uppercase transition duration-200 ease-in-out hover:border-black md:mb-3 md:mr-3 md:h-11 md:w-11 md:text-sm"
+                data-color-name="${color.trim()}">  <!-- Use color name -->
+              <span class="block h-full w-full rounded ${colorClass}"></span>
+            </li>
+          `;
+        });
+  
+        const colorOptions = document.querySelectorAll(".color-option");
+        colorOptions.forEach(colorOption => {
+          colorOption.addEventListener("click", function () {
+            colorOptions.forEach(c => c.classList.remove("border-black"));
+            this.classList.add("border-black");
+  
+            selectedColor = this.getAttribute("data-color-name");  // Use name
+            colorInput.value = selectedColor;  // Set the color name in the hidden input
+          });
+        });
+      });
+    });
+  
+    incrementButton.addEventListener("click", function () {
+      quantity++;
+      quantityDisplay.textContent = quantity;
+      quantityInput.value = quantity;
+      // No price update needed when quantity changes
+    });
+  
+    decrementButton.addEventListener("click", function () {
+      if (quantity > 1) {
+        quantity--;
+        quantityDisplay.textContent = quantity;
+        quantityInput.value = quantity;
+        // No price update needed when quantity changes
+      }
+    });
+  
+    function updatePrice() {
+      const totalPrice = basePrice * quantity;
+      priceDisplay.textContent = `₹${totalPrice}`;
+      priceInput.value = totalPrice;
+    }
+  });
+
+  </script>
+  
+{%endblock%}
+
+
+
+
+
+
+
+@method_decorator(signin_required,name="dispatch")
+        
+class ProductDetailView(DetailView):
+    
+    def get(self,request,*args, **kwargs):
+        
+        id=kwargs.get("pk")
+        
+        qs=Product.objects.get(id=id)
+        
+        return render(request,"shop/product_detail.html",{"product":qs})
+
+
+
+
+
+from .models import Product, Size, Colour, Cart, Cart_items, ProductVariant
+
+@method_decorator(signin_required,name="dispatch")
+
+class AddToCartView(View):
+    def post(self, request, *args, **kwargs):
+        product_id = kwargs.get('product_id')  # Fetch product_id from kwargs
+        product = Product.objects.filter(id=product_id).first()
+        if not product:
+            return redirect('404_page')  # Handle missing product
+
+        size_name = request.POST.get('size_name')
+        color_name = request.POST.get('color_name')
+        quantity = int(request.POST.get('quantity', 1))
+        price = int(request.POST.get('price'))
+
+        # Fetch the size and color by name
+        size = Size.objects.filter(name=size_name).first()
+        color = Colour.objects.filter(name=color_name).first()
+
+        if not size or not color:
+            return redirect('product-detail', product_id=product_id)  # Redirect if size or color not found
+
+        # Fetch or create the active cart for the user
+        cart, created = Cart.objects.get_or_create(owner=request.user, is_active=True)
+
+        # Fetch the product variant based on size and color
+        product_variant = ProductVariant.objects.filter(
+            product_object=product,
+            size_object=size,
+            colour_object=color
+        ).first()
+
+        if product_variant:
+            # Create a new Cart_item entry if the product variant is found
+            Cart_items.objects.create(
+                product_variant_object=product_variant,
+                size_object=size,
+                colour_object=color,
+                cart_object=cart,
+                quantity=quantity,
+                is_order_placed=False
+            )
+            return redirect('index')  # Redirect to the homepage or cart
+
+        # If product variant not found, redirect back to product detail page
+        messages.error(request,"Select Size and colour")
+        
+        return redirect('product-detail', product_id=product_id)
+
+
+
+
+
+
+        path("product/cart/<int:product_id>/add/",views.AddToCartView.as_view(), name="addtocart"),

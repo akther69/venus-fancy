@@ -1,0 +1,29 @@
+{% extends "shop/base.html" %}
+{%block main_block%}
+{%if reviews%}
+<div class="my-3 mx-auto text-center"><label for=""><h1 class="text-[25px]"><b>Reviews</b></h1></label></div>
+    {%for r in reviews%}
+    <div class="flex max-w-2xl flex-col items-center rounded-md border md:flex-row mx-auto mt-3 shadow border">
+        
+        <div>
+          <div class="p-4">
+            <h1 class="inline-flex items-center text-lg font-semibold">
+              @{{r.user_object}}
+            </h1>
+            <p class="mt-3 text-sm text-gray-600">
+              {{r.comment}}
+            </p>
+            <div class="mt-3 flex items-center space-x-2">
+              <span class="flex flex-col">
+                <span class="text-[12px] font-medium text-gray-900">Rating : {{r.rating}}</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+    {%endfor%}
+{%else%}
+    No Reviews Yet
+{%endif%}
+{%endblock%}

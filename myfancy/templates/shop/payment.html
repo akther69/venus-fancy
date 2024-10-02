@@ -1,0 +1,77 @@
+{% extends "shop/base.html" %}
+{% block main_block %}
+<div class="w-1/2 border p-5 my-2 mx-auto">
+    <form>
+        <div class="mx-auto max-w-2xl px-4 lg:max-w-none lg:px-0">
+            <div class="w-[720px] rounded-md border">
+                <div class="p-4">
+                  <h1 class="text-lg font-semibold">Confirm Contact Information</h1>
+                  <p class="mt-3 text-sm text-gray-600">
+                    {{name}}
+                  </p>
+                  <p class="mt-3 text-sm text-gray-600">
+                    {{delivery_address}}
+                  </p>
+                  <p class="mt-3 text-sm text-gray-600">
+                    Pin : {{pin}}
+                  </p>
+                  <p class="mt-3 text-sm text-gray-600">
+                   Email : {{email}}
+                  </p>
+                  <p class="mt-3 text-sm text-gray-600 mb-5">
+                    Phone : {{phone}}
+                   </p>
+                  <a
+                   href="{%url 'address-edit' address.id%}"
+                    type="button"
+                    class="mt-5 rounded-sm bg-black px-2.5 py-1 text-[15px] font-semibold text-white shadow-sm hover:bg-black/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black"
+                  >
+                    Edit
+                  </a>
+                </div>
+              </div>
+              
+            <div class="mt-10 flex justify-end  border-gray-200">
+                <button
+                    id="rzp-button1"
+                    type="button"
+                    class="rounded-md bg-black px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black/80 "
+                >
+                    Make payment
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+<!-- Razorpay payment script -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+var options = {
+    "key": "{{ key }}", // Enter the Key ID generated from the Dashboard
+    "amount": "{{ amount }}", // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+    "currency": "{{ currency }}",
+    "name": "Acme Corp",
+    "description": "Test Transaction",
+    "image": "https://example.com/your_logo",
+    "order_id": "{{ order_id }}", // This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+    "callback_url": "http://127.0.0.1:8000/payment/verification/",
+    "prefill": {
+        "name": "Gaurav Kumar",
+        "email": "{{ email }}", // Use email from context
+        "contact": "{{ phone }}" // Use phone from context
+    },
+    "notes": {
+        "address": "Razorpay Corporate Office"
+    },
+    "theme": {
+        "color": "#3399cc"
+    }
+};
+var rzp1 = new Razorpay(options);
+document.getElementById('rzp-button1').onclick = function(e) {
+    rzp1.open();
+    e.preventDefault();
+}
+</script>
+
+{% endblock %}

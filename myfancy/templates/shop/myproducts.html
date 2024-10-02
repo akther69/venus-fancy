@@ -1,0 +1,37 @@
+{% extends "shop/base.html" %}
+{% block main_block %}
+
+{% if items %}
+    <!-- product view code -->
+<div class="mx-auto grid w-full max-w-7xl items-center space-y-4 px-2 py-10 md:grid-cols-2 md:gap-6 md:space-y-0 lg:grid-cols-4">
+  {%for i in items%}
+    <div class="relative aspect-[16/9]  w-auto rounded-md md:aspect-auto md:h-[400px]">
+      <img
+        src="{{i.image.url}}"
+        alt="AirMax Pro"
+        class="z-0 h-full w-full rounded-md object-cover"
+      />
+      <div class="absolute inset-0 rounded-md bg-gradient-to-t from-gray-900 to-transparent"></div>
+      <div class="absolute bottom-4 left-4 text-left">
+        <h1 class="text-lg font-semibold text-white">{{i.title}}</h1>
+        <p class="mt-2 text-sm text-gray-300">
+          {{i.description}}
+        </p>
+        <div><a 
+            href="{%url 'myproduct-delete' i.id%}"
+            class="mt-2 inline-flex cursor-pointer items-center text-sm font-semibold text-white">
+              Remove →
+            </a></div>
+      </div>
+    </div>
+    {%endfor%}
+  </div>
+{% else %}
+<div class="flex items-center justify-center h-screen">
+  <h1 class="w-1/4 text-center">
+    <b>Your Product is Empty</b>
+  </h1>
+</div>
+{% endif %}
+  <!-- <!-end of product view-  --> 
+{% endblock  %}
