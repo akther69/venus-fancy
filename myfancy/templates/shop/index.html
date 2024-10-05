@@ -1,11 +1,12 @@
 {% extends "shop/base.html" %}
 {% block main_block %}
-<div class="flex items-center justify-center mt-4">
+<div class="flex items-center justify-center my-4">
   <h1 class="w-1/4 text-center">
     <b>Welcome {{request.user}}</b>
   </h1>
 </div>
 {%if not request.user.is_superuser%}
+<div class="flex justify-center">
 <form method="post" action="">
   {% csrf_token %}
   <select name="type" id="type" class="border rounded p-2" required>
@@ -16,6 +17,7 @@
   </select>
   <button type="submit" class="ml-4 rounded-md bg-black text-white px-3 py-2">Show Products</button>
 </form>
+</div>
 
 
 <!-- product view code -->
