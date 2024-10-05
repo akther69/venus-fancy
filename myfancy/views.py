@@ -98,7 +98,19 @@ class IndexView(View):
         
         qs=Product.objects.all().exclude(owner=request.user)
         
-        return render(request,self.template_name,{"products":qs})
+        types=Type.objects.all()
+        
+        return render(request,self.template_name,{"products":qs,"types":types})
+    
+    def post(self, request, *args, **kwargs):
+        
+        selected_type_id = request.POST.get('type')  # Get the selected type from the form
+        
+        types = Type.objects.all()  # Fetch all types for the dropdown again
+
+        products = Product.objects.filter(type_object_id=selected_type_id)
+
+        return render(request, "shop/index.html", {"types": types, "products": products})
     
  
 @method_decorator(signin_required,name="dispatch")
@@ -1001,3 +1013,11 @@ class SizeDeleteView(View):
         Size.objects.get(id=id).delete()
         
         return redirect("size-all")
+    
+# class TypeDropdownView(View):
+    
+#     def get(self,request,*args, **kwargs):
+        
+#         # qs = Type.objects.filter(is_active=True)
+        
+#         return render(request,"shop/index.html",{"types":qs})

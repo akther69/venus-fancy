@@ -5,6 +5,19 @@
     <b>Welcome {{request.user}}</b>
   </h1>
 </div>
+{%if not request.user.is_superuser%}
+<form method="post" action="">
+  {% csrf_token %}
+  <select name="type" id="type" class="border rounded p-2" required>
+      <option value="" disabled selected>Select a type</option>
+      {% for type in types %}
+          <option value="{{ type.id }}">{{ type.name }}</option>
+      {% endfor %}
+  </select>
+  <button type="submit" class="ml-4 rounded-md bg-black text-white px-3 py-2">Show Products</button>
+</form>
+
+
 <!-- product view code -->
 <div class="mx-auto grid w-full max-w-7xl items-center space-y-4 px-2 py-10 md:grid-cols-2 md:gap-6 md:space-y-0 lg:grid-cols-4">
   {%for p in products%}
@@ -37,4 +50,7 @@
     {%endfor%}
   </div>
   <!-- <!-end of product view-  --> 
+   {%endif%}
+
+
 {% endblock  %}

@@ -72,6 +72,7 @@ urlpatterns = [
     path("size/<int:pk>/change/",views.SizeUpdateView.as_view(),name="size-edit"),
     path("size/all/",views.SizeListView.as_view(),name="size-all"),
     path("size/<int:pk>/remove/",views.SizeDeleteView.as_view(),name="size-delete"),
+    # path("type/dropdown/",views.TypeDropdownView.as_view(),name="type-dropdown")
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
