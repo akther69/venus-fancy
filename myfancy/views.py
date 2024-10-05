@@ -1,12 +1,12 @@
 from django.shortcuts import render,redirect
 
-from django.views.generic import View,UpdateView,CreateView,DetailView,FormView
+from django.views.generic import View,UpdateView,CreateView,DetailView,FormView,ListView
 
-from myfancy.forms import SignUpForm,SignInForm,UserProfileForm,ProductForm,ProductVariantForm,AddressForm,ReviewForm
+from myfancy.forms import SignUpForm,SignInForm,UserProfileForm,ProductForm,ProductVariantForm,AddressForm,ReviewForm,MaterialForm,OccasionForm,ColourForm,FeatureForm,TypeForm,TagForm,SizeForm
 
 from django.contrib.auth import authenticate,login,logout
 
-from myfancy.models import Product,UserProfile,ProductVariant,Cart_items,Orders,Address,Reviews
+from myfancy.models import Product,UserProfile,ProductVariant,Cart_items,Orders,Address,Reviews,Material,Occasion,Colour,Feature,Type,Tag,Size
 
 from django.urls import reverse_lazy
 
@@ -20,11 +20,7 @@ from myfancy.decorators import signin_required,admin_permission_required
 
 from django.contrib import messages
 
-
-
-
-
-
+from decouple import config
 
 
 ProductVariantFormSet = inlineformset_factory(
@@ -35,9 +31,9 @@ ProductVariantFormSet = inlineformset_factory(
     can_delete=True             # Allows the deletion of existing inline instances
 )
 
-key_ID="rzp_test_CRo07kQyFloRSh"
+key_ID=config("key_ID")
 
-key_SECRET="Gs7tgRtskQauYPGLvajtIUN4"
+key_SECRET=config("key_SECRET")
 
 
 class SignUpView(View):
@@ -594,6 +590,414 @@ class LogoutView(View):
         messages.success(request,"Logout Successfull")
     
         return redirect("sign-in")
-            
-            
     
+@method_decorator(signin_required,name="dispatch")
+            
+class MaterialCreateView(View):
+    
+    def get(self,request,*args, **kwargs):
+        
+        form_instance=MaterialForm()
+        
+        return render(request,"shop/material_add.html",{"form":form_instance})
+    
+    def post(self,request,*args, **kwargs):
+        
+        form_instance=MaterialForm(request.POST)
+        
+        if form_instance.is_valid():
+            
+            form_instance.save()
+            
+            return redirect("material-all")
+        
+        return render(request,"shop/material_add.html",{"form":form_instance})
+    
+@method_decorator(signin_required,name="dispatch")
+    
+class MaterialUpdateView(UpdateView):
+    
+    model=Material
+    
+    form_class=MaterialForm
+    
+    template_name="shop/material_edit.html"
+    
+    success_url=reverse_lazy("material-all")
+    
+    
+@method_decorator(signin_required,name="dispatch")
+    
+class MaterialListView(ListView):
+    
+    model=Material
+    
+    template_name="shop/material_list.html"
+    
+    context_object_name="materials"
+    
+@method_decorator(signin_required,name="dispatch")
+    
+class MaterialDeleteView(View):
+    
+    def get(self,request,*args, **kwargs):
+        
+        id=kwargs.get("pk")
+        
+        Material.objects.get(id=id).delete()
+        
+        return redirect("material-all")
+    
+    # Occasion
+    
+@method_decorator(signin_required,name="dispatch")
+            
+class OccasionCreateView(View):
+    
+    def get(self,request,*args, **kwargs):
+        
+        form_instance=OccasionForm()
+        
+        return render(request,"shop/occasion_add.html",{"form":form_instance})
+    
+    def post(self,request,*args, **kwargs):
+        
+        form_instance=OccasionForm(request.POST)
+        
+        if form_instance.is_valid():
+            
+            form_instance.save()
+            
+            return redirect("occasion-all")
+        
+        return render(request,"shop/occasion_add.html",{"form":form_instance})
+    
+@method_decorator(signin_required,name="dispatch")
+    
+class OccasionUpdateView(UpdateView):
+    
+    model=Occasion
+    
+    form_class=OccasionForm
+    
+    template_name="shop/occasion_edit.html"
+    
+    success_url=reverse_lazy("occasion-all")
+    
+    
+@method_decorator(signin_required,name="dispatch")
+    
+class OccasionListView(ListView):
+    
+    model=Occasion
+    
+    template_name="shop/occasion_list.html"
+    
+    context_object_name="occasions"
+    
+@method_decorator(signin_required,name="dispatch")
+    
+class OccasionDeleteView(View):
+    
+    def get(self,request,*args, **kwargs):
+        
+        id=kwargs.get("pk")
+        
+        Occasion.objects.get(id=id).delete()
+        
+        return redirect("occasion-all")
+    
+    # Colour
+    
+@method_decorator(signin_required,name="dispatch")
+            
+class ColourCreateView(View):
+    
+    def get(self,request,*args, **kwargs):
+        
+        form_instance=ColourForm()
+        
+        return render(request,"shop/colour_add.html",{"form":form_instance})
+    
+    def post(self,request,*args, **kwargs):
+        
+        form_instance=ColourForm(request.POST)
+        
+        if form_instance.is_valid():
+            
+            form_instance.save()
+            
+            return redirect("colour-all")
+        
+        return render(request,"shop/colour_add.html",{"form":form_instance})
+    
+@method_decorator(signin_required,name="dispatch")
+    
+class ColourUpdateView(UpdateView):
+    
+    model=Colour
+    
+    form_class=ColourForm
+    
+    template_name="shop/colour_edit.html"
+    
+    success_url=reverse_lazy("colour-all")
+    
+    
+@method_decorator(signin_required,name="dispatch")
+    
+class ColourListView(ListView):
+    
+    model=Colour
+    
+    template_name="shop/colour_list.html"
+    
+    context_object_name="colours"
+    
+@method_decorator(signin_required,name="dispatch")
+    
+class ColourDeleteView(View):
+    
+    def get(self,request,*args, **kwargs):
+        
+        id=kwargs.get("pk")
+        
+        Colour.objects.get(id=id).delete()
+        
+        return redirect("colour-all")
+    
+    # feature
+    
+@method_decorator(signin_required,name="dispatch")
+            
+class FeatureCreateView(View):
+    
+    def get(self,request,*args, **kwargs):
+        
+        form_instance=FeatureForm()
+        
+        return render(request,"shop/feature_add.html",{"form":form_instance})
+    
+    def post(self,request,*args, **kwargs):
+        
+        form_instance=FeatureForm(request.POST)
+        
+        if form_instance.is_valid():
+            
+            form_instance.save()
+            
+            return redirect("feature-all")
+        
+        return render(request,"shop/feature_add.html",{"form":form_instance})
+    
+@method_decorator(signin_required,name="dispatch")
+    
+class FeatureUpdateView(UpdateView):
+    
+    model=Feature
+    
+    form_class=FeatureForm
+    
+    template_name="shop/feature_edit.html"
+    
+    success_url=reverse_lazy("feature-all")
+    
+    
+@method_decorator(signin_required,name="dispatch")
+    
+class FeatureListView(ListView):
+    
+    model=Feature
+    
+    template_name="shop/feature_list.html"
+    
+    context_object_name="features"
+    
+@method_decorator(signin_required,name="dispatch")
+    
+class FeatureDeleteView(View):
+    
+    def get(self,request,*args, **kwargs):
+        
+        id=kwargs.get("pk")
+        
+        Feature.objects.get(id=id).delete()
+        
+        return redirect("feature-all")
+    
+    # type
+    
+@method_decorator(signin_required,name="dispatch")
+            
+class TypeCreateView(View):
+    
+    def get(self,request,*args, **kwargs):
+        
+        form_instance=TypeForm()
+        
+        return render(request,"shop/type_add.html",{"form":form_instance})
+    
+    def post(self,request,*args, **kwargs):
+        
+        form_instance=TypeForm(request.POST)
+        
+        if form_instance.is_valid():
+            
+            form_instance.save()
+            
+            return redirect("type-all")
+        
+        return render(request,"shop/type_add.html",{"form":form_instance})
+    
+@method_decorator(signin_required,name="dispatch")
+    
+class TypeUpdateView(UpdateView):
+    
+    model=Type
+    
+    form_class=TypeForm
+    
+    template_name="shop/type_edit.html"
+    
+    success_url=reverse_lazy("type-all")
+    
+    
+@method_decorator(signin_required,name="dispatch")
+    
+class TypeListView(ListView):
+    
+    model=Type
+    
+    template_name="shop/type_list.html"
+    
+    context_object_name="types"
+    
+@method_decorator(signin_required,name="dispatch")
+    
+class TypeDeleteView(View):
+    
+    def get(self,request,*args, **kwargs):
+        
+        id=kwargs.get("pk")
+        
+        Type.objects.get(id=id).delete()
+        
+        return redirect("type-all")
+    
+    # tag
+    
+@method_decorator(signin_required,name="dispatch")
+            
+class TagCreateView(View):
+    
+    def get(self,request,*args, **kwargs):
+        
+        form_instance=TagForm()
+        
+        return render(request,"shop/tag_add.html",{"form":form_instance})
+    
+    def post(self,request,*args, **kwargs):
+        
+        form_instance=TagForm(request.POST)
+        
+        if form_instance.is_valid():
+            
+            form_instance.save()
+            
+            return redirect("tag-all")
+        
+        return render(request,"shop/tag_add.html",{"form":form_instance})
+    
+@method_decorator(signin_required,name="dispatch")
+    
+class TagUpdateView(UpdateView):
+    
+    model=Tag
+    
+    form_class=TagForm
+    
+    template_name="shop/tag_edit.html"
+    
+    success_url=reverse_lazy("tag-all")
+    
+    
+@method_decorator(signin_required,name="dispatch")
+    
+class TagListView(ListView):
+    
+    model=Tag
+    
+    template_name="shop/tag_list.html"
+    
+    context_object_name="tags"
+    
+@method_decorator(signin_required,name="dispatch")
+    
+class TagDeleteView(View):
+    
+    def get(self,request,*args, **kwargs):
+        
+        id=kwargs.get("pk")
+        
+        Tag.objects.get(id=id).delete()
+        
+        return redirect("tag-all")
+    
+    # size
+    
+@method_decorator(signin_required,name="dispatch")
+            
+class SizeCreateView(View):
+    
+    def get(self,request,*args, **kwargs):
+        
+        form_instance=SizeForm()
+        
+        return render(request,"shop/size_add.html",{"form":form_instance})
+    
+    def post(self,request,*args, **kwargs):
+        
+        form_instance=SizeForm(request.POST)
+        
+        if form_instance.is_valid():
+            
+            form_instance.save()
+            
+            return redirect("size-all")
+        
+        return render(request,"shop/size_add.html",{"form":form_instance})
+    
+@method_decorator(signin_required,name="dispatch")
+    
+class SizeUpdateView(UpdateView):
+    
+    model=Size
+    
+    form_class=SizeForm
+    
+    template_name="shop/size_edit.html"
+    
+    success_url=reverse_lazy("size-all")
+    
+    
+@method_decorator(signin_required,name="dispatch")
+    
+class SizeListView(ListView):
+    
+    model=Size
+    
+    template_name="shop/size_list.html"
+    
+    context_object_name="sizes"
+    
+@method_decorator(signin_required,name="dispatch")
+    
+class SizeDeleteView(View):
+    
+    def get(self,request,*args, **kwargs):
+        
+        id=kwargs.get("pk")
+        
+        Size.objects.get(id=id).delete()
+        
+        return redirect("size-all")

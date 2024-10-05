@@ -1,0 +1,24 @@
+{% extends "shop/base.html" %}
+{% block main_block %}
+{%if sizes%}
+<div class="my-3 mx-auto text-center"><label for=""><h1 class="text-[25px]"><b>Sizes</b></h1></label></div>
+    {%for s in sizes%}
+    <div class="flex max-w-2xl flex-col items-center rounded-md border md:flex-row mx-auto mt-3 shadow border p-3">
+        <div class="flex justify-between items-center w-full">
+            <b>{{s}}</b>
+            <div class="flex space-x-2"> 
+                <a href="{% url 'size-edit' s.id %}" class="h-8 rounded bg-black px-4 py-1 text-white text-sm font-semibold hover:bg-gray-800 focus:outline-none">Edit</a>
+                <a href="{% url 'size-delete' s.id %}" class="h-8 rounded bg-black px-4 py-1 text-white text-sm font-semibold hover:bg-gray-800 focus:outline-none">Delete</a>
+            </div>
+        </div>
+    </div>
+    {%endfor%}
+    {%else%}
+        <div class="text-center"><b>No Size Yet</b></div>
+    {%endif%}
+    <div class="my-5">
+    <center>
+    <a href="{% url 'size-add'%}" class="h-8 rounded bg-black px-4 py-3 text-white text-sm font-semibold hover:bg-gray-800 focus:outline-none">Add Size</a>
+    </center>
+    </div>
+{%endblock%}

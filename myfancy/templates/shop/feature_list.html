@@ -1,0 +1,24 @@
+{% extends "shop/base.html" %}
+{% block main_block %}
+{%if features%}
+<div class="my-3 mx-auto text-center"><label for=""><h1 class="text-[25px]"><b>Feature</b></h1></label></div>
+    {%for f in features%}
+    <div class="flex max-w-2xl flex-col items-center rounded-md border md:flex-row mx-auto mt-3 shadow border p-3">
+        <div class="flex justify-between items-center w-full">
+            <b>{{f}}</b>
+            <div class="flex space-x-2"> 
+                <a href="{% url 'feature-edit' f.id %}" class="h-8 rounded bg-black px-4 py-1 text-white text-sm font-semibold hover:bg-gray-800 focus:outline-none">Edit</a>
+                <a href="{% url 'feature-delete' f.id %}" class="h-8 rounded bg-black px-4 py-1 text-white text-sm font-semibold hover:bg-gray-800 focus:outline-none">Delete</a>
+            </div>
+        </div>
+    </div>
+    {%endfor%}
+    {%else%}
+        <div class="text-center"><b>No Feature Yet</b></div>
+    {%endif%}
+    <div class="my-5">
+    <center>
+    <a href="{% url 'feature-add'%}" class="h-8 rounded bg-black px-4 py-3 text-white text-sm font-semibold hover:bg-gray-800 focus:outline-none">Add Feature</a>
+    </center>
+    </div>
+{%endblock%}

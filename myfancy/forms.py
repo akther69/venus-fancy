@@ -4,7 +4,7 @@ from django.contrib.auth.forms import UserCreationForm
 
 from django.contrib.auth.models import User
 
-from myfancy.models import UserProfile,Product,ProductVariant,Address,Reviews
+from myfancy.models import UserProfile,Product,ProductVariant,Address,Reviews,Material,Occasion,Colour,Feature,Type,Tag,Size
 
 from django.forms import inlineformset_factory
 
@@ -113,5 +113,97 @@ class ReviewForm(forms.ModelForm):
         widgets={
             "comment":forms.Textarea(attrs={"class":"w-full border my-3 p-2"}),
             "rating":forms.NumberInput(attrs={"class":"w-full border my-3 p-2"})
+        }
+        
+        
+class MaterialForm(forms.ModelForm):
+    
+    class Meta:
+        
+        model=Material
+        
+        fields=["name"]
+        
+        widgets={
+            
+            "name":forms.TextInput(attrs={"class":"w-full border my-3 p-2"})
+        }
+        
+class OccasionForm(forms.ModelForm):
+    
+    class Meta:
+        
+        model=Occasion
+        
+        fields=["name"]
+        
+        widgets={
+            
+            "name":forms.TextInput(attrs={"class":"w-full border my-3 p-2"})
+        }
+        
+class ColourForm(forms.ModelForm):
+    
+    class Meta:
+        
+        model=Colour
+        
+        fields=["name"]
+        
+        widgets={
+            
+            "name":forms.TextInput(attrs={"class":"w-full border my-3 p-2"})
+        }
+        
+class FeatureForm(forms.ModelForm):
+    
+    class Meta:
+        
+        model=Feature
+        
+        fields=["name"]
+        
+        widgets={
+            
+            "name":forms.TextInput(attrs={"class":"w-full border my-3 p-2"})
+        }
+        
+class TypeForm(forms.ModelForm):
+    
+    class Meta:
+        
+        model=Type
+        
+        fields=["name"]
+        
+        widgets={
+            
+            "name":forms.TextInput(attrs={"class":"w-full border my-3 p-2"})
+        }
+        
+class TagForm(forms.ModelForm):
+    
+    class Meta:
+        
+        model=Tag
+        
+        fields=["title"]
+        
+        widgets={
+            
+            "title":forms.TextInput(attrs={"class":"w-full border my-3 p-2"})
+        }
+        
+class SizeForm(forms.ModelForm):
+    
+    class Meta:
+        
+        model=Size
+        
+        fields=["name"]
+        
+        widgets={
+            
+            "name":forms.TextInput(attrs={"class":"w-full border my-3 p-2"})
         }
 

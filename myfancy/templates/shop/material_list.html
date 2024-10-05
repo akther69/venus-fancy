@@ -1,0 +1,25 @@
+{% extends "shop/base.html" %}
+{% block main_block %}
+{%if materials%}
+<div class="my-3 mx-auto text-center"><label for=""><h1 class="text-[25px]"><b>Materials</b></h1></label></div>
+    {%for m in materials%}
+    <div class="flex max-w-2xl flex-col items-center rounded-md border md:flex-row mx-auto mt-3 shadow border p-3">
+        <div class="flex justify-between items-center w-full">
+            <b>{{ m }}</b>
+            <div class="flex space-x-2">  <!-- Add a flex container for buttons -->
+                <a href="{% url 'material-edit' m.id %}" class="h-8 rounded bg-black px-4 py-1 text-white text-sm font-semibold hover:bg-gray-800 focus:outline-none">Edit</a>
+                <a href="{% url 'material-delete' m.id %}" class="h-8 rounded bg-black px-4 py-1 text-white text-sm font-semibold hover:bg-gray-800 focus:outline-none">Delete</a>
+            </div>
+        </div>
+    </div>
+    {%endfor%}
+{%else%}
+<div class="text-center"><b>No Materials Yet</b></div>
+{%endif%}
+    <div class="my-5">
+    <center>
+    <a href="{% url 'material-add'%}" class="h-8 rounded bg-black px-4 py-3 text-white text-sm font-semibold hover:bg-gray-800 focus:outline-none">Add Materials</a>
+    </center>
+    </div>
+    
+{%endblock%}
