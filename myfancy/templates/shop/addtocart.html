@@ -24,4 +24,31 @@
     </div>
 
     <button type="submit">Add to Cart</button>
-</form>
+</form> 
+{% comment %} <form method="post" action="{% url 'add_to_cart' product_variant.id %}">
+    {% csrf_token %}
+    <div>
+        <label for="size">Select Size:</label>
+        <select name="size" id="size" required>
+            {% for size in product_variant.size_object.all %}
+                <option value="{{ size.id }}">{{ size.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div>
+        <label for="colour">Select Colour:</label>
+        <select name="colour" id="colour" required>
+            {% for colour in product_variant.colour_object.all %}
+                <option value="{{ colour.id }}">{{ colour.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div>
+        <label for="quantity">Quantity:</label>
+        <input type="number" name="quantity" id="quantity" value="1" min="1" required>
+    </div>
+
+    <button type="submit">Add to Cart</button>
+</form> {% endcomment %}

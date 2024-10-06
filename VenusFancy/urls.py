@@ -32,6 +32,8 @@ urlpatterns = [
     path("myproduct/all/",views.MyProductListView.as_view(),name="myproduct"),
     path("myproduct/<int:pk>/remove/",views.MyProductDeleteView.as_view(),name="myproduct-delete"),
     path("product/cart/<int:product_id>/add/",views.AddToCartView.as_view(), name="addtocart"),
+    # path('cart/add/<int:product_variant_id>/',views.CartAddView.as_view(), name='add_to_cart'),
+    # path('add-to-cart/',views.AddToCartView.as_view(), name='add-to-cart'),
     path("product/cartitems/",views.MyCartItemView.as_view(), name="mycartitems"),
     path("product/cartitems/<int:pk>/remove/",views.MyCartItemsDeleteView.as_view(), name="mycartitems-remove"),
     path("customer/details/",views.AddressView.as_view(), name="address"),
@@ -72,7 +74,7 @@ urlpatterns = [
     path("size/<int:pk>/change/",views.SizeUpdateView.as_view(),name="size-edit"),
     path("size/all/",views.SizeListView.as_view(),name="size-all"),
     path("size/<int:pk>/remove/",views.SizeDeleteView.as_view(),name="size-delete"),
-    # path("type/dropdown/",views.TypeDropdownView.as_view(),name="type-dropdown")
+    
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

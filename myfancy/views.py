@@ -6,7 +6,7 @@ from myfancy.forms import SignUpForm,SignInForm,UserProfileForm,ProductForm,Prod
 
 from django.contrib.auth import authenticate,login,logout
 
-from myfancy.models import Product,UserProfile,ProductVariant,Cart_items,Orders,Address,Reviews,Material,Occasion,Colour,Feature,Type,Tag,Size
+from myfancy.models import Product,UserProfile,ProductVariant,Cart_items,Orders,Address,Reviews,Material,Occasion,Colour,Feature,Type,Tag,Size,Cart
 
 from django.urls import reverse_lazy
 
@@ -219,47 +219,57 @@ class MyProductDeleteView(View):
          return redirect("myproduct")
     
 
-@method_decorator(signin_required,name="dispatch")
+@method_decorator(signin_required, name="dispatch")
+class ProductDetailView(View):
+    def get(self, request, *args, **kwargs):
+        id = kwargs.get("pk")
+        product = Product.objects.get(id=id)
+        return render(request, "shop/product_detail.html", {"product": product})
+
+    def post(self, request, *args, **kwargs):
+        product_id = kwargs.get("pk")
+        product = Product.objects.get(id=product_id)
+        size_id = request.POST.get("size_id")
         
-class ProductDetailView(DetailView):
-    
-    def get(self,request,*args, **kwargs):
+        # Get the selected size object
+        selected_size = Size.objects.filter(id=size_id).first()
+        if not selected_size:
+            messages.error(request, "Invalid size selected.")
+            return redirect('product-detail', pk=product_id)
         
-        id=kwargs.get("pk")
+        # Get the available colors for the selected size
+        colors = []
+        price = None  # Initialize price variable
+        for variant in product.product_variants.all():
+            if selected_size in variant.size_object.all():
+                colors.extend(variant.colour_object.all())
+                price = variant.price  # Fetch the price for the selected size variant
         
-        qs=Product.objects.get(id=id)
-        
-        return render(request,"shop/product_detail.html",{"product":qs})
+        return render(request, "shop/product_detail.html", {
+            "product": product,
+            "selected_size": selected_size,
+            "colors": colors,
+            "price": price,  # Pass the price to the template
+        })
 
-
-
-
-
-from .models import Product, Size, Colour, Cart, Cart_items, ProductVariant
-
-@method_decorator(signin_required,name="dispatch")
-
+@method_decorator(signin_required, name="dispatch")
 class AddToCartView(View):
     def post(self, request, *args, **kwargs):
-        id = kwargs.get('product_id')  # Fetch product_id from kwargs
+        id = kwargs.get('product_id')
         product = Product.objects.filter(id=id).first()
-        size_name = request.POST.get('size_name')
-        color_name = request.POST.get('color_name')
+        size_id = request.POST.get('size_id')
+        color_id = request.POST.get('color_id')
         quantity = int(request.POST.get('quantity', 1))
-        price = int(request.POST.get('price'))
 
-        # Fetch the size and color by name
-        size = Size.objects.filter(name=size_name).first()
-        color = Colour.objects.filter(name=color_name).first()
+        size = Size.objects.filter(id=size_id).first()
+        color = Colour.objects.filter(id=color_id).first()
 
         if not size or not color:
             messages.error(request, "Please select both size and color.")
             return redirect('product-detail', product_id=id)
 
-        # Fetch or create the active cart for the user
         cart, created = Cart.objects.get_or_create(owner=request.user, is_active=True)
 
-        # Fetch the product variant based on size and color
         product_variant = ProductVariant.objects.filter(
             product_object=product,
             size_object=size,
@@ -267,7 +277,6 @@ class AddToCartView(View):
         ).first()
 
         if product_variant:
-            # Create a new Cart_item entry if the product variant is found
             Cart_items.objects.create(
                 product_variant_object=product_variant,
                 size_object=size,
@@ -278,12 +287,8 @@ class AddToCartView(View):
             )
             return redirect('index')  # Redirect to the homepage or cart
 
-        # If product variant not found, redirect back to product detail page
         messages.error(request, "Product variant not found.")
         return redirect('product-detail', pk=id)
-
-
-
 
 
 @method_decorator(signin_required,name="dispatch")
@@ -1014,10 +1019,3 @@ class SizeDeleteView(View):
         
         return redirect("size-all")
     
-# class TypeDropdownView(View):
-    
-#     def get(self,request,*args, **kwargs):
-        
-#         # qs = Type.objects.filter(is_active=True)
-        
-#         return render(request,"shop/index.html",{"types":qs})

@@ -98,7 +98,7 @@ class AddressForm(forms.ModelForm):
             "phone":forms.NumberInput(attrs={"class":"w-full border my-3 p-2"}),
             "email":forms.EmailInput(attrs={"class":"w-full border my-3 p-2"}),
             "pin":forms.NumberInput(attrs={"class":"w-full border my-3 p-2"}),
-            "delivery_address":forms.Textarea(attrs={"class":"w-full border my-3 p-2"}),
+            "delivery_address":forms.Textarea(attrs={"class":"w-full border my-3 p-2","rows":4}),
             "payment_method":forms.Select(attrs={"class":"w-full border my-3 p-2"}),
         }
         

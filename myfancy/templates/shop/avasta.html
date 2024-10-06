@@ -340,3 +340,77 @@ class AddToCartView(View):
 
 
         path("product/cart/<int:product_id>/add/",views.AddToCartView.as_view(), name="addtocart"),
+
+
+        {% comment %} {% extends "shop/base.html" %}
+{% block main_block %}
+<div class="mx-auto max-w-7xl px-4 md:px-8 2xl:px-16">
+  <div class="pt-8"></div>
+  <div class="block grid-cols-9 items-start gap-x-10 pb-10 pt-7 lg:grid lg:pb-14 xl:gap-x-14 2xl:pb-20">
+    <div class="col-span-5 grid grid-cols-2 gap-2.5">
+      <div class="col-span-1 transition duration-150 ease-in hover:opacity-90">
+        <img src="{{ product.image.url }}" alt="Product Image" class="w-full object-cover" />
+      </div>
+    </div>
+    
+    
+    <div class="col-span-4 pt-8 lg:pt-0">
+      <div class="mb-7 border-b border-gray-300 pb-7">
+        <h2 class="text-heading mb-3.5 text-lg font-bold md:text-xl lg:text-2xl 2xl:text-3xl">
+          {{ product.title }}
+        </h2>
+        <p class="text-body text-sm leading-6 lg:text-base lg:leading-8">
+          {{ product.description }}
+        </p>
+      </div>
+
+      <!-- Initial Form to select size -->
+      {% if not colors %}
+      <form method="post" action="{% url 'product-detail' product.id %}">
+        {% csrf_token %}
+        <h3 class="text-heading mb-2.5 text-base font-semibold capitalize md:text-lg">Size</h3>
+        <select name="size_id" required>
+          <option value="">Select Size</option>
+          {% for variant in product.product_variants.all %}
+            {% for size in variant.size_object.all %}
+              <option value="{{ size.id }}">{{ size.name }}</option>
+            {% endfor %}
+          {% endfor %}
+        </select>
+        <button type="submit" class="h-11 w-full rounded-md bg-black px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black/80">
+          Show Colors
+        </button>
+      </form>
+      {% else %}
+      <!-- Form to select color and quantity -->
+      <form method="post" action="{% url 'addtocart' product.id %}">
+        {% csrf_token %}
+        <input type="hidden" name="size_id" value="{{ selected_size.id }}">
+        
+        <h3 class="text-heading mb-2.5 text-base font-semibold capitalize md:text-lg">Available Colors</h3>
+        <select name="color_id" required>
+          <option value="">Select Color</option>
+          {% for color in colors %}
+            <option value="{{ color.id }}">{{ color.name }}</option>
+          {% endfor %}
+        </select>
+
+        <div class="mt-5">
+          <div id="product-price" class="text-heading pr-2 text-base font-bold md:pr-0 md:text-xl lg:pr-2 lg:text-2xl 2xl:pr-0 2xl:text-4xl">
+            Price: ₹{{ price }}
+          </div>
+        </div>
+        
+        <div class="py-6">
+          <label for="quantity" class="text-heading inline-block pr-2 font-semibold">Quantity:</label>
+          <input type="number" name="quantity" id="quantity" value="1" min="1" required>
+        </div>
+        <button type="submit" class="h-11 w-full rounded-md bg-black px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black/80">
+          Add to cart
+        </button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %} {% endcomment %}
