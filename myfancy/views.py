@@ -195,6 +195,49 @@ class ProductCreateView(CreateView):
     
 #         success_url=reverse_lazy("index")
 
+@method_decorator(signin_required,name="dispatch")
+
+class ProductUpdateView(UpdateView):
+    
+    model = Product
+    
+    form_class = ProductForm
+    
+    template_name = "shop/product_edit.html"
+    
+    success_url = reverse_lazy("index")
+    
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form_instance = self.form_class(instance=self.object)
+        formset = ProductVariantFormSet(instance=self.object)
+        
+        return render(request, self.template_name, {"form": form_instance, "formset": formset})
+    
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form_instance = self.form_class(request.POST, files=request.FILES, instance=self.object)
+        formset = ProductVariantFormSet(request.POST, files=request.FILES, instance=self.object)
+        
+        if form_instance.is_valid() and formset.is_valid():
+            product = form_instance.save(commit=False)
+            product.owner = request.user
+            product.save()
+            form_instance.save_m2m()
+            
+            variants = formset.save(commit=False)
+            
+            for v in variants:
+                v.product_object = product
+                v.save()
+                
+            formset.save_m2m()
+            
+            return redirect(self.success_url)
+        
+        return render(request, self.template_name, {"form": form_instance, "formset": formset})
+
+
 @method_decorator(admin_permission_required,name="dispatch")
        
 class MyProductListView(View):

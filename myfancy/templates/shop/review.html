@@ -2,9 +2,9 @@
 {% block main_block %}
 <form action="" enctype="multipart/form-data" method="post" class="border w-1/2 mx-auto p-5 drop-shadow-md">
     {%csrf_token%}
-    <h1>Give Your Comments :</h1>
+    <h1><b>Give Your Comments :</b></h1>
     {{form}}
-    <button type="submit" class="rounded-md border p-2 bg-blue-950 text-white">Confirm</button>
+    <button type="submit" class="rounded-md border p-2 bg-black text-white">Confirm</button>
 </form>
 
 {% endblock  %}

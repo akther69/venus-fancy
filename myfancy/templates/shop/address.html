@@ -9,14 +9,16 @@
     <title>Contact Information</title>
 </head>
 <body>
-    <div class="container mx-auto px-4 py-6">
-        <div class="flex flex-col lg:flex-row shadow-lg items-center justify-between space-y-4 lg:space-y-0">
-            
+    <div class="container mx-auto px-4 py-6 flex justify-center items-center min-h-screen shadow-lg">
+        <div class="w-full lg:w-3/4 flex flex-col lg:flex-row shadow-lg items-center justify-between space-y-4 lg:space-y-0 lg:space-x-2 "> 
+            <!-- Changed lg:space-x-8 to lg:space-x-2 to reduce space between image and form -->
+    
             <!-- Left side: Image -->
             <div class="w-full lg:w-1/2 flex justify-center p-4">
-                <img width="70%" src="{% static 'images/address.jpeg' %}" alt="Address" class="img-fluid max-w-full h-auto">
+                <img width="90%" src="{% static 'images/address.jpeg' %}" alt="Address" class="img-fluid max-w-full h-auto"> 
+                <!-- Reduced the width of the image -->
             </div>
-
+    
             <!-- Right side: Contact form -->
             <div class="w-full lg:w-1/2 flex justify-center p-4">
                 <form action="" method="post" class="border w-full lg:w-full p-5 shadow-lg">
@@ -28,6 +30,8 @@
             </div>
         </div>
     </div>
+    
+        
 </body>
 </html>
 {% endblock %}

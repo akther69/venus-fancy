@@ -74,6 +74,7 @@ urlpatterns = [
     path("size/<int:pk>/change/",views.SizeUpdateView.as_view(),name="size-edit"),
     path("size/all/",views.SizeListView.as_view(),name="size-all"),
     path("size/<int:pk>/remove/",views.SizeDeleteView.as_view(),name="size-delete"),
+    path("product/change/<int:pk>/",views.ProductUpdateView.as_view(),name="product-edit")
     
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
