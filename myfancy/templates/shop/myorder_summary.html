@@ -22,28 +22,57 @@
                     <div class="text-sm font-medium text-gray-700">{{o.order_id}}</div>
                   </div>
                   {%else%}
+                  {%if not o.is_canceled%}
                   <div class="mb-4">
                     <div class="text-sm font-semibold">Cash on Delivery</div>
                   </div>
+                  {%else%}
+                  <div class="mb-4">
+                    <div class="text-sm font-semibold">Order Canceled</div>
+                  </div>
                   {%endif%}
+                  {%endif%}
+
+                  {%if o.is_canceled%}
+                  <div class="mb-4">
+                    <div class="text-sm font-semibold">Date</div>
+                    <div class="text-sm font-medium text-gray-700">{{o.canceled_at}}</div>
+                  </div>
+                  {%else%}
                   <div class="mb-4">
                     <div class="text-sm font-semibold">Date</div>
                     <div class="text-sm font-medium text-gray-700">{{o.created_date}}</div>
                   </div>
+                  {%endif%}
+
+                  
+
+
                   <div class="mb-4">
                     <div class="text-sm font-semibold">Total Amount</div>
                     <div class="text-sm font-medium text-gray-700">₹{{o.total}}</div>
                   </div>
+                  {%if not o.is_canceled%}
                   <div class="mb-4">
                     <div class="text-sm font-semibold">Order Status</div>
                     <div class="text-sm font-medium text-gray-700">
-                        {%if o.is_paid%}
+                        {%if o.is_paid %}
                             Payment Completed
                         {%else%}
                             Payment Pending
                         {%endif%}
                     </div>
                   </div>
+                  {%endif%}
+                  {%if o.is_canceled%}
+                  <div class="mb-4">
+                    <div class="text-sm font-semibold">Order Status</div>
+                    <div class="text-sm font-medium text-gray-700">
+                          Canceled
+                    </div>
+                  </div>
+                  {%endif%}
+
                 </div>
               </div>
             </div>
@@ -84,7 +113,7 @@
 
                 </ul>
                 <hr class="my-8 border-t border-t-gray-200" />
-                {%if not o.is_paid%}
+                {%if not o.is_paid and not o.is_canceled%}
                 <div class="space-x-4 flex justify-end">
                   <a
                     href="{%url 'cash-on-delivery-cancel' o.id%}"

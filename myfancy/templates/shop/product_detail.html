@@ -7,6 +7,7 @@
       <div class="col-span-1 transition duration-150 ease-in hover:opacity-90">
         <img src="{{ product.image.url }}" alt="Product Image" class="w-full object-cover" />
       </div>
+
       <div class="col-span-1 transition duration-150 ease-in hover:opacity-90">
         <img
           src="{{ product.image.url }}" 
@@ -14,6 +15,7 @@
           class="w-full object-cover"
         />
       </div>
+
       <div class="col-span-1 transition duration-150 ease-in hover:opacity-90">
         <img
           src="{{ product.image.url }}" 
@@ -21,6 +23,7 @@
           class="w-full object-cover"
         />
       </div>
+
       <div class="col-span-1 transition duration-150 ease-in hover:opacity-90">
         <img
           src="{{ product.image.url }}" 
@@ -93,6 +96,8 @@
         <a href="{% url 'review-all' product.id%}"><h1 class="text-[20px] h-11 w-full rounded-md bg-black px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black text-center mt-3">Rating & Reviews({{product.review_count}})</h1></a>
       </div>
       <div class="mb-2 border-b border-gray-300 pb-2"></div>
+
+
       <!-- Initial Form to select size -->
       {% if not colors %}
       <form method="post" action="{% url 'product-detail' product.id %}">
@@ -112,6 +117,7 @@
           Show Colors
         </button>
       </form>
+      
       {% else %}
       <!-- Form to select color and quantity -->
       <form method="post" action="{% url 'addtocart' product.id %}">

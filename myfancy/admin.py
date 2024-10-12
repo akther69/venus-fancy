@@ -2,7 +2,7 @@ from django.contrib import admin
 
 # Register your models here.
 
-from myfancy.models import Material,Occasion,Colour,Feature,Type,Tag,Size,Product,ProductVariant
+from myfancy.models import Material,Occasion,Colour,Feature,Type,Tag,Size,Product,ProductVariant,Orders
 
 admin.site.register(Material)
 
@@ -21,3 +21,5 @@ admin.site.register(Size)
 admin.site.register(Product)
 
 admin.site.register(ProductVariant)
+
+admin.site.register(Orders)

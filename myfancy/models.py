@@ -9,7 +9,7 @@ from django.db.models import Sum,F,Avg
 
 class UserProfile(models.Model):
     
-    pic=models.ImageField(upload_to="profile_pictures",default="/profile_pictures/default_profile_picture.png")
+    pic=models.ImageField(upload_to="profile_pictures",default="/profile_pictures/default_profile_picture.jpeg")
     
     name=models.CharField(max_length=200,null=True)
     
@@ -279,6 +279,10 @@ class Orders(models.Model):
     address_object = models.ForeignKey(Address, on_delete=models.CASCADE,related_name="address_detail")
 
     is_paid = models.BooleanField(default=False)
+    
+    is_canceled = models.BooleanField(default=False)
+    
+    canceled_at = models.DateTimeField(null=True, blank=True)
 
     created_date = models.DateTimeField(auto_now_add=True)
 
@@ -320,6 +324,7 @@ def create_profile(sender,instance,created,*args, **kwargs):
         UserProfile.objects.create(user_object=instance)
         
 post_save.connect(receiver=create_profile,sender=User)     
+
 
 
 def create_basket(sender,instance,created,*args, **kwargs):

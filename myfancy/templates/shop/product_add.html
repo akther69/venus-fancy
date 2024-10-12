@@ -5,10 +5,10 @@
     {{form}}
     <button type="submit" class="rounded-md border p-2 bg-blue-950 text-white">Add Variant</button>
 </form> -->
-<form method="POST" enctype="multipart/form-data" class="border w-1/2 mx-auto p-5 drop-shadow-md">
+<form method="POST" enctype="multipart/form-data" class="border w-1/2 mx-auto p-5 drop-shadow-md mt-5 mb-5">
     {% csrf_token %}
     {{form}}
-    {{formset.management_form}}
+    {{formset.management_form}} {% comment %}#This renders the management form for the formset, which is necessary to handle multiple forms in Django. {% endcomment %}
     
     {% for form in formset %}
         <div class="inline-form">
@@ -16,7 +16,7 @@
         </div>
     {% endfor %}
     
-    <button type="submit" class="rounded-md border p-3 my-3 bg-black text-white">Save Product and Variants</button>
+    <button type="submit" class="rounded-md border p-3 mt-3 bg-black text-white">Save Product and Variants</button>
 </form>
 
 {% endblock  %}

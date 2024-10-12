@@ -22,6 +22,10 @@ from django.contrib import messages
 
 from decouple import config
 
+from django import forms
+
+from django.utils import timezone
+
 
 ProductVariantFormSet = inlineformset_factory(
     Product,                    # Parent model
@@ -108,7 +112,7 @@ class IndexView(View):
         
         types = Type.objects.all()  # Fetch all types for the dropdown again
 
-        products = Product.objects.filter(type_object_id=selected_type_id)
+        products = Product.objects.filter(type_object__id=selected_type_id)
 
         return render(request, "shop/index.html", {"types": types, "products": products})
     
@@ -155,7 +159,7 @@ class ProductCreateView(CreateView):
         
         if form_instance.is_valid() and formset.is_valid(): 
             
-            product=form_instance.save(commit=False)
+            product=form_instance.save(commit=False)   #creates a product instance but doesn’t save it to the database yet.
             
             product.owner=request.user
             
@@ -177,23 +181,6 @@ class ProductCreateView(CreateView):
   
         return render(request,self.template_name,{"form":form_instance,"formset":formset})
           
-        
-    
-    # def form_valid(self,form):
-        
-    #     form.instance.owner=self.request.user
-        
-    #     return super().form_valid(form)
-    
-# class ProductVarientCreateView(CreateView):
-    
-#         model=ProductVariant
-    
-#         form_class=ProductVariantForm
-    
-#         template_name="shop/product_variant_add.html"
-    
-#         success_url=reverse_lazy("index")
 
 @method_decorator(signin_required,name="dispatch")
 
@@ -208,27 +195,43 @@ class ProductUpdateView(UpdateView):
     success_url = reverse_lazy("index")
     
     def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        form_instance = self.form_class(instance=self.object)
-        formset = ProductVariantFormSet(instance=self.object)
+        
+        id=kwargs.get("pk")
+        
+        product_object=Product.objects.get(id=id)
+        
+        form_instance = self.form_class(instance=product_object)
+        
+        formset = ProductVariantFormSet(instance=product_object)
         
         return render(request, self.template_name, {"form": form_instance, "formset": formset})
     
     def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        form_instance = self.form_class(request.POST, files=request.FILES, instance=self.object)
-        formset = ProductVariantFormSet(request.POST, files=request.FILES, instance=self.object)
+        
+        id=kwargs.get("pk")
+        
+        product_object=Product.objects.get(id=id)
+        
+        form_instance = self.form_class(request.POST, files=request.FILES, instance=product_object)
+        
+        formset = ProductVariantFormSet(request.POST, files=request.FILES, instance=product_object)
         
         if form_instance.is_valid() and formset.is_valid():
+            
             product = form_instance.save(commit=False)
+            
             product.owner = request.user
+            
             product.save()
+            
             form_instance.save_m2m()
             
             variants = formset.save(commit=False)
             
             for v in variants:
+                
                 v.product_object = product
+                
                 v.save()
                 
             formset.save_m2m()
@@ -264,54 +267,89 @@ class MyProductDeleteView(View):
 
 @method_decorator(signin_required, name="dispatch")
 class ProductDetailView(View):
-    def get(self, request, *args, **kwargs):
+    
+    def get(self,request,*args,**kwargs):
+
         id = kwargs.get("pk")
+
         product = Product.objects.get(id=id)
+
         return render(request, "shop/product_detail.html", {"product": product})
 
+
     def post(self, request, *args, **kwargs):
+
         product_id = kwargs.get("pk")
+
         product = Product.objects.get(id=product_id)
+
         size_id = request.POST.get("size_id")
-        
+  
         # Get the selected size object
         selected_size = Size.objects.filter(id=size_id).first()
+
         if not selected_size:
+
             messages.error(request, "Invalid size selected.")
+
             return redirect('product-detail', pk=product_id)
+
         
         # Get the available colors for the selected size
         colors = []
+
         price = None  # Initialize price variable
+
         for variant in product.product_variants.all():
+
             if selected_size in variant.size_object.all():
+
                 colors.extend(variant.colour_object.all())
+
                 price = variant.price  # Fetch the price for the selected size variant
+
         
         return render(request, "shop/product_detail.html", {
+
             "product": product,
+
             "selected_size": selected_size,
+
             "colors": colors,
+
             "price": price,  # Pass the price to the template
+
         })
+
 
 @method_decorator(signin_required, name="dispatch")
 class AddToCartView(View):
-    def post(self, request, *args, **kwargs):
-        id = kwargs.get('product_id')
-        product = Product.objects.filter(id=id).first()
-        size_id = request.POST.get('size_id')
-        color_id = request.POST.get('color_id')
-        quantity = int(request.POST.get('quantity', 1))
 
+    def post(self, request, *args, **kwargs):
+
+        id = kwargs.get('product_id')
+
+        product = Product.objects.filter(id=id).first()
+
+        size_id = request.POST.get('size_id')
+
+        color_id = request.POST.get('color_id')
+
+        quantity = int(request.POST.get('quantity', 1))
+        
         size = Size.objects.filter(id=size_id).first()
+
         color = Colour.objects.filter(id=color_id).first()
 
         if not size or not color:
+
             messages.error(request, "Please select both size and color.")
+
             return redirect('product-detail', product_id=id)
 
+
         cart, created = Cart.objects.get_or_create(owner=request.user, is_active=True)
+
 
         product_variant = ProductVariant.objects.filter(
             product_object=product,
@@ -320,6 +358,7 @@ class AddToCartView(View):
         ).first()
 
         if product_variant:
+
             Cart_items.objects.create(
                 product_variant_object=product_variant,
                 size_object=size,
@@ -328,9 +367,10 @@ class AddToCartView(View):
                 quantity=quantity,
                 is_order_placed=False
             )
-            return redirect('index')  # Redirect to the homepage or cart
+            return redirect('index')
 
         messages.error(request, "Product variant not found.")
+
         return redirect('product-detail', pk=id)
 
 
@@ -592,6 +632,8 @@ class AddressEditView(View):
         
         form_instance=AddressForm(instance=address_obj)
         
+        form_instance.fields['payment_method'].widget = forms.HiddenInput()
+        
         return render(request,"shop/address_edit.html",{"form":form_instance})
     
     def post(self,request,*args, **kwargs):
@@ -602,7 +644,11 @@ class AddressEditView(View):
         
         form_instance=AddressForm(request.POST,instance=address_obj)
         
+        payment_method = address_obj.payment_method
+        
         if form_instance.is_valid():
+            
+            form_instance.instance.payment_method=payment_method
             
             form_instance.save()
             
@@ -625,18 +671,6 @@ class ReviewListView(View):
         
         return render(request,"shop/review_list.html",{"reviews":qs})
 
-
-@method_decorator(signin_required,name="dispatch")
-    
-class CashOndeliveryCancelView(View):
-    
-    def get(self,request,*args, **kwargs):
-        
-        id=kwargs.get("pk")
-        
-        qs=Orders.objects.get(id=id).delete()
-        
-        return redirect("myorders")
 
 
 @method_decorator(signin_required,name="dispatch")
@@ -1062,3 +1096,24 @@ class SizeDeleteView(View):
         
         return redirect("size-all")
     
+    
+@method_decorator(signin_required,name="dispatch")
+    
+class CashOndeliveryCancelView(View):
+    
+    def get(self,request,*args, **kwargs):
+        
+        id=kwargs.get("pk")
+        
+        qs=Orders.objects.get(id=id,user_object=request.user)
+        
+        if not qs.is_paid:
+            
+            qs.is_canceled= True
+            
+            qs.canceled_at=timezone.now()
+            
+            qs.save()
+        
+        return redirect("myorders")
+
