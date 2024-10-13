@@ -182,8 +182,7 @@ class ProductCreateView(CreateView):
         return render(request,self.template_name,{"form":form_instance,"formset":formset})
           
 
-@method_decorator(signin_required,name="dispatch")
-
+@method_decorator(admin_permission_required,name="dispatch")
 class ProductUpdateView(UpdateView):
     
     model = Product
@@ -1117,3 +1116,27 @@ class CashOndeliveryCancelView(View):
         
         return redirect("myorders")
 
+
+@method_decorator(admin_permission_required,name="dispatch")
+
+class CashOnDeliveryOrderListView(View):
+    
+    def get(self,request,*args, **kwargs):
+        
+        qs=Orders.objects.filter(address_object__payment_method="cash_on_delivery",is_canceled=False,is_paid=False) 
+        
+        return render(request,"shop/codorderlist.html",{"orders":qs})
+    
+class PaymentDoneView(View):
+    
+    def get(self,request,*args, **kwargs):
+        
+        id=kwargs.get("pk")
+        
+        order=Orders.objects.get(id=id)
+        
+        order.is_paid=True
+        
+        order.save()
+        
+        return redirect("admin-order")

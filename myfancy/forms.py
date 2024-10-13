@@ -11,9 +11,9 @@ from django.forms import inlineformset_factory
 
 class SignUpForm(UserCreationForm):
     
-    password1=forms.CharField(widget=forms.PasswordInput(attrs={"class":"form-control"}))
+    password1=forms.CharField(widget=forms.PasswordInput(attrs={"class":"form-control my-2"}))
     
-    password2=forms.CharField(widget=forms.PasswordInput(attrs={"class":"form-control"}))
+    password2=forms.CharField(widget=forms.PasswordInput(attrs={"class":"form-control my-2"}))
     
     class Meta:
         
@@ -22,16 +22,16 @@ class SignUpForm(UserCreationForm):
         fields=["username","email","password1","password2"]
         
         widgets={
-            "username":forms.TextInput(attrs={"class":"form-control"}),
+            "username":forms.TextInput(attrs={"class":"form-control my-2"}),
             
-            "email":forms.EmailInput(attrs={"class":"form-control"})
+            "email":forms.EmailInput(attrs={"class":"form-control my-2"})
         }
         
 class SignInForm(forms.Form):
     
-    username=forms.CharField(widget=forms.TextInput(attrs={"class":"form-control"}))
+    username=forms.CharField(widget=forms.TextInput(attrs={"class":"form-control my-2"}))
     
-    password=forms.CharField(widget=forms.PasswordInput(attrs={"class":"form-control"}))
+    password=forms.CharField(widget=forms.PasswordInput(attrs={"class":"form-control my-2"}))
     
 
 class UserProfileForm(forms.ModelForm):
