@@ -176,6 +176,11 @@ class Product(models.Model):
         
         return self.title
     
+    @property
+    def purchased_count(self):
+        
+        return Orders.objects.filter(is_paid=True,cart_items_object__product_variant_object__product_object=self).count()
+    
 class ProductVariant(models.Model):
     
     product_object=models.ForeignKey(Product,on_delete=models.CASCADE,related_name="product_variants")
@@ -192,10 +197,10 @@ class ProductVariant(models.Model):
     
     is_active=models.BooleanField(default=True)
     
-    @property
-    def purchased_count(self):
+    # @property
+    # def purchased_count(self):
         
-        return Orders.objects.filter(is_paid=True,cart_items_object__product_variant_object=self).count()
+    #     return Orders.objects.filter(is_paid=True,cart_items_object__product_variant_object=self).count()
     
     
 class Cart(models.Model):

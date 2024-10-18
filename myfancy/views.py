@@ -573,7 +573,7 @@ class MyPurchaseView(View):
     
     def get(self,request,*args, **kwargs):
         
-        qs=Orders.objects.filter(Q(user_object=request.user,is_paid=True) | Q(address_object__payment_method="cash_on_delivery")).order_by("-created_date")
+        qs=Orders.objects.filter(Q(user_object=request.user,is_paid=True) | Q(address_object__payment_method="cash_on_delivery",user_object=request.user)).order_by("-created_date")
         
         return render(request,"shop/myorder_summary.html",{"orders":qs})
 
@@ -1126,6 +1126,9 @@ class CashOnDeliveryOrderListView(View):
         qs=Orders.objects.filter(address_object__payment_method="cash_on_delivery",is_canceled=False,is_paid=False) 
         
         return render(request,"shop/codorderlist.html",{"orders":qs})
+    
+    
+@method_decorator(admin_permission_required,name="dispatch")
     
 class PaymentDoneView(View):
     
