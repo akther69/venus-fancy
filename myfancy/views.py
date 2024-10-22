@@ -26,6 +26,22 @@ from django import forms
 
 from django.utils import timezone
 
+from django.core.mail import send_mail
+
+import threading
+
+def sent_email_message(customer_name,product_name_str,total,recipient_email):
+    
+    message=(
+    f"Hi {customer_name},\n\n Your order for {product_name_str} has been successfully placed.The total amount is ₹{total}.\n\n Thank you for shopping with us!\n\n Best regards,\n Venus Fancy"
+)
+    
+    subject="Order Confirmation - Your Order Has Been Successfully Placed"
+    
+    send_mail(
+                subject,message,"ssuhaibakther12@gmail.com",[recipient_email,],fail_silently=False
+            )
+
 
 ProductVariantFormSet = inlineformset_factory(
     Product,                    # Parent model
@@ -475,12 +491,38 @@ class AddressView(View):
                 )
 
                 order.cart_items_object.set(cart_items)
+                
+                if order:
+                    print("sending email")
+
+                    customer_name = order.address_object.name
+                    
+                    recipient_email = order.address_object.email
+
+                    product_names = []
+
+                    for cart_item in order.cart_items_object.all():
+                        
+                        product_name = cart_item.product_variant_object.product_object.title
+                        
+                        product_names.append(product_name)
+
+                    product_names_str = ", ".join(product_names)
+
+                    total = sum(cart_item.item_total_price for cart_item in order.cart_items_object.all())
+
+                    email_thread = threading.Thread(target=sent_email_message, args=(customer_name, product_names_str, total,recipient_email))
+                    
+                    email_thread.start()
+
+                    
 
                 for ci in cart_items:
 
                     ci.is_order_placed = True
 
                     ci.save()
+                    
 
                 return render(request, "shop/cash_on_delivery.html", {"order": order})
 
@@ -541,11 +583,36 @@ class CheckOutView(View):
                             total=request.user.basket.cart_total
         )
         
+        
+        
         for ci in cart_items:
             
             orders_obj.cart_items_object.add(ci)
             
             orders_obj.save()
+            
+        if orders_obj:
+                    print("sending email")
+
+                    customer_name = orders_obj.address_object.name
+                    
+                    recipient_email = orders_obj.address_object.email
+
+                    product_names = []
+
+                    for cart_item in orders_obj.cart_items_object.all():
+                        
+                        product_name = cart_item.product_variant_object.product_object.title
+                        
+                        product_names.append(product_name)
+
+                    product_names_str = ", ".join(product_names)
+
+                    total = request.user.basket.cart_total
+
+                    email_thread = threading.Thread(target=sent_email_message, args=(customer_name, product_names_str, total,recipient_email))
+                    
+                    email_thread.start()
             
             
         context={
