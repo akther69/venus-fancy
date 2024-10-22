@@ -2,11 +2,11 @@ from django.shortcuts import render,redirect
 
 from django.views.generic import View,UpdateView,CreateView,DetailView,FormView,ListView
 
-from myfancy.forms import SignUpForm,SignInForm,UserProfileForm,ProductForm,ProductVariantForm,AddressForm,ReviewForm,MaterialForm,OccasionForm,ColourForm,FeatureForm,TypeForm,TagForm,SizeForm
+from myfancy.forms import SignUpForm,SignInForm,UserProfileForm,ProductForm,ProductVariantForm,AddressForm,ReviewForm,MaterialForm,OccasionForm,ColourForm,FeatureForm,TypeForm,TagForm,SizeForm,AddressAddForm
 
 from django.contrib.auth import authenticate,login,logout
 
-from myfancy.models import Product,UserProfile,ProductVariant,Cart_items,Orders,Address,Reviews,Material,Occasion,Colour,Feature,Type,Tag,Size,Cart
+from myfancy.models import Product,UserProfile,ProductVariant,Cart_items,Orders,Address,Reviews,Material,Occasion,Colour,Feature,Type,Tag,Size,Cart,AddressStore
 
 from django.urls import reverse_lazy
 
@@ -111,8 +111,14 @@ class IndexView(View):
         selected_type_id = request.POST.get('type')  # Get the selected type from the form
         
         types = Type.objects.all()  # Fetch all types for the dropdown again
+        
+        if selected_type_id=='all':
+            
+            products=Product.objects.all()
+            
+        else:
 
-        products = Product.objects.filter(type_object__id=selected_type_id)
+            products = Product.objects.filter(type_object__id=selected_type_id)
 
         return render(request, "shop/index.html", {"types": types, "products": products})
     
@@ -404,53 +410,91 @@ class MyCartItemsDeleteView(View):
 
 class AddressView(View):
     
-    def get(self,request,*args, **kwargs):
-        
-        form_instance=AddressForm()
-        
-        return render(request,"shop/address.html",{"form":form_instance})
+    def get(self, request, *args, **kwargs):                                                                 
+
+        form_instance = AddressForm()
+
+        qs = AddressStore.objects.all()
+
+        return render(request, "shop/address.html", {"form": form_instance, "address": qs})
+
     
-    def post(self,request,*args, **kwargs):
-        
-        form_instance=AddressForm(request.POST)
-        
-        if form_instance.is_valid():
-                        
-            form_instance.instance.user_object=request.user
-            
-            address_instance=form_instance.save()
-            
+
+    def post(self, request, *args, **kwargs):
+
+        form_instance = AddressForm(request.POST)
+
+        selected_address_id = request.POST.get('selected_address_id')
+
+        if selected_address_id:
+
+            # Populate the form with the selected address data
+
+            selected_address = AddressStore.objects.get(id=selected_address_id)
+
+            form_instance = AddressForm(initial={
+
+                'name': selected_address.name,
+
+                'phone': selected_address.phone,
+
+                'email': selected_address.email,
+
+                'pin': selected_address.pin,
+
+                'delivery_address': selected_address.delivery_address,
+
+            })
+
+        # Handle form submission (order creation, etc.)
+
+        elif form_instance.is_valid():
+
+            form_instance.instance.user_object = request.user
+
+            address_instance = form_instance.save()
+
             request.session['address_id'] = address_instance.id
+
             
-            if form_instance.instance.payment_method=="cash_on_delivery":
-                
-                cart_items=request.user.basket.basket_items.filter(is_order_placed=False)
-                
-                qs = Orders.objects.create(
-                    
+
+            if form_instance.instance.payment_method == "cash_on_delivery":
+
+                cart_items = request.user.basket.basket_items.filter(is_order_placed=False)
+
+                order = Orders.objects.create(
+
                     user_object=request.user,
-                    
-                    address_object=address_instance,  # Save the actual address object
-                    
-                    is_paid=False,  # Assuming payment hasn't been made yet
-                    
+
+                    address_object=address_instance,
+
+                    is_paid=False,
+
                     total=request.user.basket.cart_total
+
                 )
-                
-                # Assign the cart items to the order
-                qs.cart_items_object.set(cart_items)
-                
+
+                order.cart_items_object.set(cart_items)
+
                 for ci in cart_items:
-                
-                    ci.is_order_placed=True
-                
+
+                    ci.is_order_placed = True
+
                     ci.save()
-                
-                return render(request,"shop/cash_on_delivery.html",{"order":qs})
+
+                return render(request, "shop/cash_on_delivery.html", {"order": order})
+
             
+
             return redirect("online-payment")
-        
-        return render(request,"shop/checkout.html",{"form":form_instance})
+
+        # Render the template with form errors or pre-filled form
+
+        qs = AddressStore.objects.all()
+
+        return render(request, "shop/address.html", {"form": form_instance, "address": qs})
+
+
     
     
 @method_decorator(signin_required,name="dispatch")
@@ -1143,3 +1187,49 @@ class PaymentDoneView(View):
         order.save()
         
         return redirect("admin-order")
+    
+    
+@method_decorator(signin_required,name="dispatch")    
+class AddressCreateView(View):
+    
+    def get(self,request,*args, **kwargs):
+        
+        form_instance=AddressAddForm()
+        
+        return render(request,"shop/address_add.html",{"form":form_instance})
+    
+    def post(self,request,*args, **kwargs):
+        
+        form_instance=AddressAddForm(request.POST)
+        
+        if form_instance.is_valid():
+            
+            form_instance.instance.user_object=request.user
+            
+            form_instance.save()
+            
+            return redirect("address")
+        
+        return render(request,"shop/address_add.html",{"form":form_instance})
+    
+@method_decorator(signin_required,name="dispatch")    
+class AddressStoreEditView(UpdateView):
+    
+    model=AddressStore
+    
+    form_class=AddressAddForm
+    
+    template_name="shop/address_store_edit.html"
+    
+    success_url=reverse_lazy("address")
+
+@method_decorator(signin_required,name="dispatch")
+class AddressStoreDeleteView(View):
+    
+    def get(self,request,*args, **kwargs):
+        
+        id=kwargs.get("pk")
+        
+        AddressStore.objects.get(id=id).delete()
+        
+        return redirect("address")

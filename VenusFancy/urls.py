@@ -27,13 +27,10 @@ urlpatterns = [
     path("index/",views.IndexView.as_view(),name="index"),
     path("profile/<int:pk>/change/",views.UserProfileUpdateView.as_view(),name="profile-edit"),
     path("product/add/",views.ProductCreateView.as_view(),name="product-add"),
-    # path("product/variant/add/",views.ProductVarientCreateView.as_view(),name="product-variant-add"),
     path("product/<int:pk>/detail/",views.ProductDetailView.as_view(),name="product-detail"),
     path("myproduct/all/",views.MyProductListView.as_view(),name="myproduct"),
     path("myproduct/<int:pk>/remove/",views.MyProductDeleteView.as_view(),name="myproduct-delete"),
     path("product/cart/<int:product_id>/add/",views.AddToCartView.as_view(), name="addtocart"),
-    # path('cart/add/<int:product_variant_id>/',views.CartAddView.as_view(), name='add_to_cart'),
-    # path('add-to-cart/',views.AddToCartView.as_view(), name='add-to-cart'),
     path("product/cartitems/",views.MyCartItemView.as_view(), name="mycartitems"),
     path("product/cartitems/<int:pk>/remove/",views.MyCartItemsDeleteView.as_view(), name="mycartitems-remove"),
     path("customer/details/",views.AddressView.as_view(), name="address"),
@@ -76,7 +73,11 @@ urlpatterns = [
     path("size/<int:pk>/remove/",views.SizeDeleteView.as_view(),name="size-delete"),
     path("product/change/<int:pk>/",views.ProductUpdateView.as_view(),name="product-edit"),
     path("cashondelivery/all/",views.CashOnDeliveryOrderListView.as_view(),name="admin-order"),
-    path("payment/done/<int:pk>/",views.PaymentDoneView.as_view(),name="payment-done")
+    path("payment/done/<int:pk>/",views.PaymentDoneView.as_view(),name="payment-done"),
+    path("address/add/",views.AddressCreateView.as_view(),name="address-add"),
+    path("address/store/edit/<int:pk>",views.AddressStoreEditView.as_view(),name="address-store-edit"),
+    path("address/store/remove/<int:pk>",views.AddressStoreDeleteView.as_view(),name="address-store-delete")
+
     
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

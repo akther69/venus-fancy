@@ -7,16 +7,16 @@
 </div>
 {%if not request.user.is_superuser%}
 <div class="flex justify-center">
-<form method="post" action="">
-  {% csrf_token %}
-  <select name="type" id="type" class="border rounded p-2" required>
-      <option value="" disabled selected>Select a type</option>
-      {% for type in types %}
-          <option value="{{ type.id }}">{{ type.name }}</option>
-      {% endfor %}
-  </select>
-  <button type="submit" class="ml-4 rounded-md bg-black text-white px-3 py-2">Show Products</button>
-</form>
+  <form method="post" action="">
+      {% csrf_token %}
+      <select name="type" class="border rounded p-2" required onchange="this.form.submit()">
+        <option value="" disabled {% if selected_type is None %}selected{% endif %}>Select a type</option>
+          <option value="all">All Products</option>
+          {% for type in types %}
+              <option value="{{ type.id }}">{{ type.name }}</option>
+          {% endfor %}
+      </select>
+  </form>
 </div>
 
 {%if products%}

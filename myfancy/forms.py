@@ -4,7 +4,7 @@ from django.contrib.auth.forms import UserCreationForm
 
 from django.contrib.auth.models import User
 
-from myfancy.models import UserProfile,Product,ProductVariant,Address,Reviews,Material,Occasion,Colour,Feature,Type,Tag,Size
+from myfancy.models import UserProfile,Product,ProductVariant,Address,Reviews,Material,Occasion,Colour,Feature,Type,Tag,Size,AddressStore
 
 from django.forms import inlineformset_factory
 
@@ -207,3 +207,18 @@ class SizeForm(forms.ModelForm):
             "name":forms.TextInput(attrs={"class":"w-full border my-3 p-2"})
         }
 
+class AddressAddForm(forms.ModelForm):
+    
+    class Meta:
+        
+        model=AddressStore
+        
+        fields=["name","phone","email","pin","delivery_address"]
+        
+        widgets={
+            "name":forms.TextInput(attrs={"class":"w-full border my-2 p-2"}),
+            "phone":forms.NumberInput(attrs={"class":"w-full border my-2 p-2"}),
+            "email":forms.EmailInput(attrs={"class":"w-full border my-2 p-2"}),
+            "pin":forms.NumberInput(attrs={"class":"w-full border my-2 p-2"}),
+            "delivery_address":forms.Textarea(attrs={"class":"w-full border my-3 p-2","rows":3})
+        }

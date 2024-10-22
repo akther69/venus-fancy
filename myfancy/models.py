@@ -340,3 +340,23 @@ def create_basket(sender,instance,created,*args, **kwargs):
         
 post_save.connect(sender=User,receiver=create_basket)
     
+    
+class AddressStore(models.Model):
+    
+    user_object = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    name=models.CharField(max_length=200)
+    
+    phone = models.IntegerField()
+    
+    email = models.EmailField()
+    
+    pin = models.IntegerField()
+    
+    delivery_address = models.TextField()
+    
+    created_date = models.DateTimeField(auto_now_add=True)
+    
+    updated_date = models.DateTimeField(auto_now=True)
+    
+    is_active = models.BooleanField(default=True)
