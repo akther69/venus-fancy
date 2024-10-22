@@ -30,6 +30,28 @@ from django.core.mail import send_mail
 
 import threading
 
+from twilio.rest import Client
+
+
+# text message sending
+
+account_sid = config("account_sid")
+
+auth_token = config("auth_token")
+
+def sent_text_message(customer_name,product_name_str,total,client_number):
+    
+    client = Client(account_sid, auth_token)
+    message = client.messages.create(
+    from_=config("from_"),
+    body=    f"Hi {customer_name},\n\n Your order for {product_name_str} has been successfully placed.The total amount is ₹{total}.\n\n Thank you for shopping with us!\n\n Best regards,\n Venus Fancy",
+    to=f'+91{client_number}'
+    )
+    print(message.sid) 
+    
+    
+# email sending
+
 def sent_email_message(customer_name,product_name_str,total,recipient_email):
     
     message=(
@@ -42,6 +64,8 @@ def sent_email_message(customer_name,product_name_str,total,recipient_email):
                 subject,message,"ssuhaibakther12@gmail.com",[recipient_email,],fail_silently=False
             )
 
+
+# inline form
 
 ProductVariantFormSet = inlineformset_factory(
     Product,                    # Parent model
@@ -510,10 +534,16 @@ class AddressView(View):
                     product_names_str = ", ".join(product_names)
 
                     total = sum(cart_item.item_total_price for cart_item in order.cart_items_object.all())
+                    
+                    client_number=order.address_object.phone
+                    
+                    message_thread=threading.Thread(target=sent_text_message, args=(customer_name, product_names_str, total,client_number))
 
                     email_thread = threading.Thread(target=sent_email_message, args=(customer_name, product_names_str, total,recipient_email))
                     
                     email_thread.start()
+                    
+                    message_thread.start()
 
                     
 
@@ -609,10 +639,16 @@ class CheckOutView(View):
                     product_names_str = ", ".join(product_names)
 
                     total = request.user.basket.cart_total
+                    
+                    client_number=orders_obj.address_object.phone
+
+                    message_thread=threading.Thread(target=sent_text_message, args=(customer_name, product_names_str, total,client_number))
 
                     email_thread = threading.Thread(target=sent_email_message, args=(customer_name, product_names_str, total,recipient_email))
                     
                     email_thread.start()
+                    
+                    message_thread.start()
             
             
         context={
