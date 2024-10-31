@@ -1,0 +1,84 @@
+{% extends "shop/base.html" %}
+{% load static %}
+{% block main_block %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Information</title>
+    <style>
+        /* Ensure the address list can scroll if there are too many addresses */
+        .address-list {
+            max-height: 400px; /* Adjust the height as needed */
+            overflow-y: auto;
+        }
+        /* Ensure the contact form does not stretch */
+        .contact-form {
+            max-width: 600px; /* Set a max-width to prevent stretching */
+        }
+    </style>
+</head>
+<body>
+    <div class="container mx-auto px-4 py-6 flex justify-center items-center min-h-screen shadow-lg">
+        <div class="w-full lg:w-3/4 flex flex-col lg:flex-row shadow-lg space-y-4 lg:space-y-0 lg:space-x-2">
+            
+            <!-- Left side: Address list -->
+            <div class="w-full lg:w-1/2 p-4">
+                <h1 class="text-center text-2xl font-bold mb-4">Delivery Address</h1>
+                <div class="address-list">
+                    {% for d in address %}
+                    <div class="flex flex-col rounded-md border shadow-md mt-3 p-4 mx-auto">
+                        <div>
+                            <h1 class="text-lg font-semibold">
+                                {{ d.name }}
+                            </h1>
+                            <p class="mt-2 text-sm text-gray-600">
+                                Address: {{ d.delivery_address }}, {{ d.pin }}
+                            </p>
+                            <p class="mt-2 text-sm text-gray-600">
+                                Email: {{ d.email }}
+                            </p>
+                            <p class="mt-2 text-sm text-gray-600 font-semibold">
+                                Phone: {{ d.phone }}
+                            </p>
+                            <div class="mt-3 flex space-x-2">
+                                <a href="{% url 'address-store-edit' d.id %}" class="rounded-md bg-black px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black/80">
+                                    Edit
+                                </a>
+                                <a href="{% url 'address-store-delete' d.id %}" class="rounded-md bg-black px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black/80">
+                                    Remove
+                                </a>
+                                <form action="{% url 'buynow-address' %}" method="post" class="inline-block">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="selected_address_id" value="{{ d.id }}">
+                                    <button type="submit" class="rounded-md bg-black px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black/80">
+                                        Deliver Here
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-center text-gray-500">No addresses available. Please add a new address.</p>
+                    {% endfor %}
+                </div>
+                <a href="{% url 'address-add' %}" class="rounded-md flex justify-center my-4 bg-black px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black/80">
+                    Add Address
+                </a>
+            </div>
+            
+            <!-- Right side: Contact form -->
+            <div class="w-full lg:w-1/2 flex justify-center p-4 contact-form">
+                <form action="" method="post" class="border w-full p-5 shadow-lg bg-white rounded-md">
+                    {% csrf_token %}
+                    <h1 class="text-center text-2xl font-bold mb-4">Contact Information</h1>
+                    {{ form.as_p }}
+                    <button type="submit" class="rounded-md border p-2 bg-black text-white mt-3 w-full">Next</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+{% endblock %}

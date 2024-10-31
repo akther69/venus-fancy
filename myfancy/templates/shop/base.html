@@ -10,178 +10,62 @@
 <body>
   <div class="relative w-full bg-gray-200">
     <div class="mx-auto flex max-w-7xl items-center justify-between py-3 px-0">
-          <div class="flex justify-start">
-            <span class="font-bold"><i class="fa-solid fa-life-ring"></i> VenusFancy</span>
-          </div>
-          <div class="hidden grow items-start lg:flex">
-            <ul class="ml-12 inline-flex space-x-8">
-              <li>
-                <a
-                  href="{%url 'index'%}"
-                  class="text-sm font-semibold text-gray-800 hover:text-gray-900"
-                >
-                  Home
-                </a>
-              </li>
-              {%if request.user.is_superuser%}
-              <li>
-                <a
-                  href="{%url 'product-add'%}"
-                  class="text-sm font-semibold text-gray-800 hover:text-gray-900"
-                >
-                  Add Product
-                </a>
-              </li>
-              {%endif%}
-              {%if request.user.is_superuser%}
-              <li>
-                <a
-                  href="{%url 'myproduct'%}"
-                  class="text-sm font-semibold text-gray-800 hover:text-gray-900"
-                >
-                  MyProduct
-                </a>
-              </li>
-              {%endif%}
-              {%if request.user.is_superuser%}
-              <li>
-                <a
-                  href="{%url 'material-all'%}"
-                  class="text-sm font-semibold text-gray-800 hover:text-gray-900"
-                >
-                  Material
-                </a>
-              </li>
-              {%endif%}
-              {%if request.user.is_superuser%}
-              <li>
-                <a
-                  href="{%url 'occasion-all'%}"
-                  class="text-sm font-semibold text-gray-800 hover:text-gray-900"
-                >
-                  Occasion
-                </a>
-              </li>
-              {%endif%}
-              {%if request.user.is_superuser%}
-              <li>
-                <a
-                  href="{%url 'colour-all'%}"
-                  class="text-sm font-semibold text-gray-800 hover:text-gray-900"
-                >
-                  Colour
-                </a>
-              </li>
-              {%endif%}
-              {%if request.user.is_superuser%}
-              <li>
-                <a
-                  href="{%url 'feature-all'%}"
-                  class="text-sm font-semibold text-gray-800 hover:text-gray-900"
-                >
-                  Feature
-                </a>
-              </li>
-              {%endif%}
-              {%if request.user.is_superuser%}
-              <li>
-                <a
-                  href="{%url 'type-all'%}"
-                  class="text-sm font-semibold text-gray-800 hover:text-gray-900"
-                >
-                  Type
-                </a>
-              </li>
-              {%endif%}
-              {%if request.user.is_superuser%}
-              <li>
-                <a
-                  href="{%url 'tag-all'%}"
-                  class="text-sm font-semibold text-gray-800 hover:text-gray-900"
-                >
-                  Tag
-                </a>
-              </li>
-              {%endif%}
-              {%if request.user.is_superuser%}
-              <li>
-                <a
-                  href="{%url 'size-all'%}"
-                  class="text-sm font-semibold text-gray-800 hover:text-gray-900"
-                >
-                  Size
-                </a>
-              </li>
-              {%endif%}
-              {%if request.user.is_superuser%}
-              <li>
-                <a
-                  href="{%url 'admin-order'%}"
-                  class="text-sm font-semibold text-gray-800 hover:text-gray-900"
-                >
-                  Cash On Delivery
-                </a>
-              </li>
-              {%endif%}
-              {%if not request.user.is_superuser%}
-              <li>
-                <a
-                  href="{%url 'mycartitems'%}"
-                  class="text-sm font-semibold text-gray-800 hover:text-gray-900"
-                >
-                  MyCart
-                </a>
-              </li>
-              {%endif%}
-              {%if not request.user.is_superuser%}
-              <li>
-                <a
-                  href="{%url 'myorders'%}"
-                  class="text-sm font-semibold text-gray-800 hover:text-gray-900"
-                >
-                  MyOrders
-                </a>
-              </li>
-              {%endif%}
-            </ul>
-          </div>
-           
-          <div class="hidden lg:flex space-x-4">
-            <a
-              href="{% url 'profile-edit' request.user.profile.id %}"
-              type="button"
-              class="rounded-md bg-black px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black"
-            >
-              Profile
+      <div class="flex justify-start">
+        <span class="font-bold"><i class="fa-solid fa-life-ring"></i> VenusFancy</span>
+      </div>
+      <div class="hidden grow items-start lg:flex">
+        <ul class="ml-12 inline-flex space-x-8">
+          <li class="mt-2">
+            <a href="{% url 'index' %}" class="text-sm font-semibold text-gray-800 hover:text-gray-900">
+              Home
             </a>
-            <a
-              href="{%url 'sign-out'%}"
-              type="button"
-              class="rounded-md bg-black px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black"
-            >
-              LogOut
+          </li>
+  
+          {% if not request.user.is_superuser %}
+          <li class="mt-2">
+            <a href="{% url 'mycartitems' %}" class="text-sm font-semibold text-gray-800 hover:text-gray-900">
+              MyCart
             </a>
+          </li>
+          <li class="mt-2">
+            <a href="{% url 'myorders' %}" class="text-sm font-semibold text-gray-800 hover:text-gray-900">
+              MyOrders
+            </a>
+          </li>
+          <div class="flex justify-center">
+            <form method="post" action="">
+              {% csrf_token %}
+              <select name="type" class="border rounded p-2" required onchange="this.form.submit()">
+                <option value="" disabled {% if selected_type is None %}selected{% endif %}>Select a type</option>
+                <option value="all">All Products</option>
+                {% for type in types %}
+                <option value="{{ type.id }}">{{ type.name }}</option>
+                {% endfor %}
+              </select>
+            </form>
           </div>
-          <div class="lg:hidden">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="h-6 w-6 cursor-pointer"
-            >
-              <line x1="4" y1="12" x2="20" y2="12"></line>
-              <line x1="4" y1="6" x2="20" y2="6"></line>
-              <line x1="4" y1="18" x2="20" y2="18"></line>
-            </svg>
-          </div>
+          {% endif %}
+        </ul>
+      </div>
+      <div class="flex justify-between">
+        <div class="hidden lg:flex space-x-4">
+          <a href="{% url 'profile-edit' request.user.profile.id %}" type="button" class="rounded-md bg-black px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black">
+            Profile
+          </a>
+          <a href="{% url 'sign-out' %}" type="button" class="rounded-md bg-black px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black">
+            LogOut
+          </a>
         </div>
       </div>
+      <div class="lg:hidden">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6 cursor-pointer">
+          <line x1="4" y1="12" x2="20" y2="12"></line>
+          <line x1="4" y1="6" x2="20" y2="6"></line>
+          <line x1="4" y1="18" x2="20" y2="18"></line>
+        </svg>
+      </div>
+    </div>
+  </div>
       {%block main_block%}
       {%endblock%}
 </body>

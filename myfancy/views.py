@@ -6,7 +6,7 @@ from myfancy.forms import SignUpForm,SignInForm,UserProfileForm,ProductForm,Prod
 
 from django.contrib.auth import authenticate,login,logout
 
-from myfancy.models import Product,UserProfile,ProductVariant,Cart_items,Orders,Address,Reviews,Material,Occasion,Colour,Feature,Type,Tag,Size,Cart,AddressStore
+from myfancy.models import Product,UserProfile,ProductVariant,Cart_items,Orders,Address,Reviews,Material,Occasion,Colour,Feature,Type,Tag,Size,Cart,AddressStore,BuyNow
 
 from django.urls import reverse_lazy
 
@@ -160,7 +160,7 @@ class IndexView(View):
 
             products = Product.objects.filter(type_object__id=selected_type_id)
 
-        return render(request, "shop/index.html", {"types": types, "products": products})
+        return render(request, "shop/product_filter.html", {"types": types, "products": products})
     
  
 @method_decorator(signin_required,name="dispatch")
@@ -318,8 +318,10 @@ class ProductDetailView(View):
         id = kwargs.get("pk")
 
         product = Product.objects.get(id=id)
+        
+        similar_product=Product.objects.filter(type_object=product.type_object).exclude(id=id)
 
-        return render(request, "shop/product_detail.html", {"product": product})
+        return render(request, "shop/product_detail.html", {"product": product,"smproduct":similar_product})
 
 
     def post(self, request, *args, **kwargs):
@@ -381,42 +383,69 @@ class AddToCartView(View):
         color_id = request.POST.get('color_id')
 
         quantity = int(request.POST.get('quantity', 1))
-        
+
+        action = request.POST.get('action') 
+         # Get the action from the form
+
         size = Size.objects.filter(id=size_id).first()
 
         color = Colour.objects.filter(id=color_id).first()
 
         if not size or not color:
-
+            
             messages.error(request, "Please select both size and color.")
+            
+            return redirect('product-detail', product_id=id)
+
+        # Logic for "Add to Cart"
+        if action == 'add_to_cart':
+            
+            cart, created = Cart.objects.get_or_create(owner=request.user, is_active=True)
+
+            product_variant = ProductVariant.objects.filter(
+                product_object=product,
+                size_object=size,
+                colour_object=color
+            ).first()
+
+            if product_variant:
+                Cart_items.objects.create(
+                    product_variant_object=product_variant,
+                    size_object=size,
+                    colour_object=color,
+                    cart_object=cart,
+                    quantity=quantity,
+                    is_order_placed=False
+                )
+                
+                return redirect('index')
 
             return redirect('product-detail', product_id=id)
 
-
-        cart, created = Cart.objects.get_or_create(owner=request.user, is_active=True)
-
-
-        product_variant = ProductVariant.objects.filter(
-            product_object=product,
-            size_object=size,
-            colour_object=color
-        ).first()
-
-        if product_variant:
-
-            Cart_items.objects.create(
-                product_variant_object=product_variant,
+        # Logic for "Buy Now"
+        elif action == 'buy_now':
+            
+            product_variant = ProductVariant.objects.filter(
+                product_object=product,
                 size_object=size,
-                colour_object=color,
-                cart_object=cart,
-                quantity=quantity,
-                is_order_placed=False
-            )
-            return redirect('index')
+                colour_object=color
+            ).first()
 
-        messages.error(request, "Product variant not found.")
+            if product_variant:
+                
+                BuyNow.objects.create(
+                    product_variant_object=product_variant,
+                    user_object=request.user,
+                    size_object=size,
+                    colour_object=color,
+                    quantity=quantity,
+                    is_order_placed=False
+                )
+                return redirect('buynow-all')
 
-        return redirect('product-detail', pk=id)
+            return redirect('product-detail', product_id=id)
+
+        return redirect('product-detail', product_id=id)
 
 
 @method_decorator(signin_required,name="dispatch")
@@ -430,7 +459,17 @@ class MyCartItemView(View):
         total=request.user.basket.cart_total
         
         return render(request,"shop/mycartitems.html",{"cartitems":qs,"total":total})
+    
+    
+@method_decorator(signin_required,name="dispatch")    
 
+class BuyNowListView(View):
+    
+    def get(self,request,*args, **kwargs):
+        
+        qs=BuyNow.objects.filter(user_object=request.user,is_order_placed=False).last()
+        
+        return render(request,"shop/buynowlist.html",{"items":qs})
 
 
 @method_decorator(signin_required,name="dispatch")
@@ -565,8 +604,146 @@ class AddressView(View):
         qs = AddressStore.objects.all()
 
         return render(request, "shop/address.html", {"form": form_instance, "address": qs})
+    
+    
+    
+    
+    
+    
+    
+@method_decorator(signin_required,name="dispatch")
+
+class BuyNowAddressView(View):
+    
+    def get(self, request, *args, **kwargs):                                                                 
+
+        form_instance = AddressForm()
+
+        qs = AddressStore.objects.all()
+
+        return render(request, "shop/bnaddress.html", {"form": form_instance, "address": qs})
+
+    
+
+    def post(self, request, *args, **kwargs):
+
+        form_instance = AddressForm(request.POST)
+
+        selected_address_id = request.POST.get('selected_address_id')
+
+        if selected_address_id:
+
+            # Populate the form with the selected address data
+
+            selected_address = AddressStore.objects.get(id=selected_address_id)
+
+            form_instance = AddressForm(initial={
+
+                'name': selected_address.name,
+
+                'phone': selected_address.phone,
+
+                'email': selected_address.email,
+
+                'pin': selected_address.pin,
+
+                'delivery_address': selected_address.delivery_address,
+
+            })
+
+        # Handle form submission (order creation, etc.)
+
+        elif form_instance.is_valid():
+
+            form_instance.instance.user_object = request.user
+
+            address_instance = form_instance.save()
+
+            request.session['address_id'] = address_instance.id
+
+            
+
+            if form_instance.instance.payment_method == "cash_on_delivery":
+
+                buynow_item = BuyNow.objects.filter(user_object=request.user,is_order_placed=False).last()
+                
+                total=buynow_item.item_total_price
+
+                order = Orders.objects.create(
+
+                    user_object=request.user,
+
+                    address_object=address_instance,
+
+                    is_paid=False,
+
+                    total=total
+
+                )
+                
+                cart_obj = Cart.objects.get(
+                        owner=request.user)
+                
+                cart_item = Cart_items.objects.create(
+                product_variant_object=buynow_item.product_variant_object, 
+                quantity=buynow_item.quantity,
+                size_object=buynow_item.size_object,
+                colour_object=buynow_item.colour_object,
+                cart_object=cart_obj,
+                is_order_placed=True
+                
+                )
+
+                order.cart_items_object.add(cart_item)
+                
+                order.save()
+                
+                if order:
+                    print("sending email")
+
+                    customer_name = order.address_object.name
+                    
+                    recipient_email = order.address_object.email
+
+                    product_names = []
+
+                    for cart_item in order.cart_items_object.all():
+                        
+                        product_name = cart_item.product_variant_object.product_object.title
+                        
+                        product_names.append(product_name)
+
+                    product_names_str = ", ".join(product_names)
+
+                    total = buynow_item.item_total_price
+                    
+                    client_number=order.address_object.phone
+                    
+                    message_thread=threading.Thread(target=sent_text_message, args=(customer_name, product_names_str, total,client_number))
+
+                    email_thread = threading.Thread(target=sent_email_message, args=(customer_name, product_names_str, total,recipient_email))
+                    
+                    email_thread.start()
+                    
+                    message_thread.start()
+                    
+
+                return render(request, "shop/buy_now_cash_on_delivery.html", {"order": order})
 
 
+            return redirect("buynow-online")
+
+        # Render the template with form errors or pre-filled form
+
+        qs = AddressStore.objects.all()
+
+        return render(request, "shop/bnaddress.html", {"form": form_instance, "address": qs})
+
+    
+    
+    
+    
+    
     
     
 @method_decorator(signin_required,name="dispatch")
@@ -666,6 +843,107 @@ class CheckOutView(View):
         
         return render(request,"shop/payment.html",context)
     
+
+
+
+
+@method_decorator(signin_required,name="dispatch")
+
+class BuyNowCheckOutView(View):
+    
+    def get(self,request,*args, **kwargs):
+        
+        client = razorpay.Client(auth=(key_ID,key_SECRET))
+        
+        buynow_item=BuyNow.objects.filter(user_object=request.user,is_order_placed=False).last()
+        
+        amount=buynow_item.item_total_price*100
+
+        data = { "amount": amount, "currency": "INR", "receipt": "order_rcptid_11" }
+        
+        payment = client.order.create(data=data)
+        
+        address_id = request.session.get('address_id')
+        
+        cart_obj = Cart.objects.get(owner=request.user)
+                
+        cart_item = Cart_items.objects.create(product_variant_object=buynow_item.product_variant_object, quantity=buynow_item.quantity,size_object=buynow_item.size_object,colour_object=buynow_item.colour_object,cart_object=cart_obj,is_order_placed=True)
+        
+        address_obj=Address.objects.filter(id=address_id,user_object=request.user,is_active=True).first()
+        
+        orders_obj=Orders.objects.create(
+            
+                            user_object=request.user,
+                            
+                            order_id=payment.get("id"),
+                            
+                            address_object=address_obj,
+                            
+                            total=buynow_item.item_total_price
+        )
+        
+        orders_obj.cart_items_object.add(cart_item)
+                
+        orders_obj.save()
+            
+        if orders_obj:
+                    print("sending email")
+
+                    customer_name = orders_obj.address_object.name
+                    
+                    recipient_email = orders_obj.address_object.email
+
+                    product_names = []
+
+                    for cart_item in orders_obj.cart_items_object.all():
+                        
+                        product_name = cart_item.product_variant_object.product_object.title
+                        
+                        product_names.append(product_name)
+
+                    product_names_str = ", ".join(product_names)
+
+                    total = buynow_item.item_total_price
+                    
+                    client_number=orders_obj.address_object.phone
+
+                    message_thread=threading.Thread(target=sent_text_message, args=(customer_name, product_names_str, total,client_number))
+
+                    email_thread = threading.Thread(target=sent_email_message, args=(customer_name, product_names_str, total,recipient_email))
+                    
+                    email_thread.start()
+                    
+                    message_thread.start()
+            
+            
+        context={
+            "key":key_ID,
+            "amount":data.get("amount"),
+            "currency":data.get("currency"),
+            "order_id":payment.get("id"),
+            "name": address_obj.name,
+            "phone": address_obj.phone,
+            "email":address_obj.email,
+            "pin":address_obj.pin,
+            "delivery_address":address_obj.delivery_address,
+            "address": address_obj,
+        }
+        
+        return render(request,"shop/payment.html",context)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # # {
 #    'razorpay_order_id': razorpay_order_id,

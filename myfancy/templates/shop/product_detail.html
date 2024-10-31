@@ -123,33 +123,81 @@
       <form method="post" action="{% url 'addtocart' product.id %}">
         {% csrf_token %}
         <input type="hidden" name="size_id" value="{{ selected_size.id }}">
-        
+    
         <h3 class="text-heading mb-2.5 text-base font-semibold capitalize md:text-lg">Available Colors</h3>
         <select name="color_id" required>
-          <option value="">Select Color</option>
-          {% for color in colors %}
-            <option value="{{ color.id }}">{{ color.name }}</option>
-          {% endfor %}
+            <option value="">Select Color</option>
+            {% for color in colors %}
+                <option value="{{ color.id }}">{{ color.name }}</option>
+            {% endfor %}
         </select>
-
+    
         <div class="mt-5">
-          <div id="product-price" class="text-heading pr-2 text-base font-bold md:pr-0 md:text-xl lg:pr-2 lg:text-2xl 2xl:pr-0 2xl:text-4xl">
-            Price: ₹{{ price }}
-          </div>
+            <div id="product-price" class="text-heading pr-2 text-base font-bold md:pr-0 md:text-xl lg:pr-2 lg:text-2xl 2xl:pr-0 2xl:text-4xl">
+                Price: ₹{{ price }}
+            </div>
         </div>
-        
+    
         <div class="py-6">
-          <label for="quantity" class="text-heading inline-block pr-2 font-semibold">Quantity:</label>
-          <input type="number" name="quantity" id="quantity" value="1" min="1" required>
+            <label for="quantity" class="text-heading inline-block pr-2 font-semibold">Quantity:</label>
+            <input type="number" name="quantity" id="quantity" value="1" min="1" required>
         </div>
-        
-        
-        <button type="submit" class="h-11 w-full rounded-md bg-black px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black/80">
-          Add to cart
-        </button>
-      </form>
+    
+        <div class="flex gap-4">
+            <button type="submit" name="action" value="add_to_cart" class="h-11 w-full rounded-md bg-black px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black/80">
+                Add to Cart
+            </button>
+            <button type="submit" name="action" value="buy_now" class="h-11 w-full rounded-md bg-black px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black/80">
+                Buy Now
+            </button>
+        </div>
+    </form>
+    
       {% endif %}
     </div>
   </div>
 </div>
+
+
+      
+      {%if smproduct%}
+      <label for="" class="mt-5 mx-5" style="font-size: 30px;"><b>Similar Products</b></label>
+      <!-- product view code -->
+       <section id="similar_products">
+      <div class="mx-auto grid w-full max-w-7xl items-center space-y-4 px-2 py-10 md:grid-cols-2 md:gap-6 md:space-y-0 lg:grid-cols-4">
+        {%for s in smproduct%}
+          <div class="relative aspect-[16/9]  w-auto rounded-md md:aspect-auto md:h-[400px]">
+            <img
+              src="{{s.image.url}}"
+              alt="AirMax Pro"
+              class="z-0 h-full w-full rounded-md object-cover"
+            />
+            <div class="absolute inset-0 rounded-md bg-gradient-to-t from-gray-900 to-transparent"></div>
+            <div class="absolute bottom-4 left-4 text-left">
+              <h1 class="text-lg font-semibold text-white">{{s.title}}</h1>
+              <p class="mt-2 text-sm text-gray-300">
+                {{s.description}}
+              </p>
+              <p class="mt-2 text-sm text-gray-300">
+                {%if s.average_rating%}
+                    Rating : {{s.average_rating}}
+                {%else%}
+                  No Rating
+                {%endif%}
+              </p>
+              <a 
+              href="{%url 'product-detail' s.id%}"
+              class="mt-2 inline-flex cursor-pointer items-center text-sm font-semibold text-white">
+                View More →
+              </a>
+            </div>
+          </div>
+          {%endfor%}
+        </div>
+        <!-- <!-end of product view-  --> 
+      
+        {%endif%}
+
+      </section>
+
 {% endblock %}

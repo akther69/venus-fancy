@@ -360,3 +360,30 @@ class AddressStore(models.Model):
     updated_date = models.DateTimeField(auto_now=True)
     
     is_active = models.BooleanField(default=True)
+    
+    
+class BuyNow(models.Model):
+    
+    user_object=models.ForeignKey(User,on_delete=models.CASCADE)
+    
+    product_variant_object=models.ForeignKey(ProductVariant,on_delete=models.CASCADE,related_name="product_var_obj")
+    
+    size_object=models.ForeignKey(Size,on_delete=models.CASCADE)
+    
+    colour_object=models.ForeignKey(Colour,on_delete=models.CASCADE)
+    
+    quantity=models.PositiveIntegerField()
+    
+    is_order_placed=models.BooleanField(default=False)
+    
+    created_date=models.DateTimeField(auto_now_add=True)
+    
+    updated_date=models.DateTimeField(auto_now=True)
+    
+    is_active=models.BooleanField(default=True)
+    
+    @property
+    
+    def item_total_price(self):
+        
+        return self.product_variant_object.price * self.quantity

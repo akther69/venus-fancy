@@ -1,66 +1,361 @@
-{% extends "shop/base.html" %}
-{% block main_block %}
-<div class="flex items-center justify-center my-4">
-  <h1 class="w-1/4 text-center">
-    <b>Welcome {{request.user}}</b>
-  </h1>
-</div>
-{%if not request.user.is_superuser%}
-<div class="flex justify-center">
-  <form method="post" action="">
-      {% csrf_token %}
-      <select name="type" class="border rounded p-2" required onchange="this.form.submit()">
-        <option value="" disabled {% if selected_type is None %}selected{% endif %}>Select a type</option>
-          <option value="all">All Products</option>
-          {% for type in types %}
-              <option value="{{ type.id }}">{{ type.name }}</option>
-          {% endfor %}
-      </select>
-  </form>
-</div>
+<!DOCTYPE html>
+{%load static%}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VenusFancy</title>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://kit.fontawesome.com/248f55b135.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<style>
+  /* Style for positioning text above the image */
+  .image-container {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+  }
+  .text-overlay {
+      position: absolute;
+      top: 228px;
+      right: 40px;
+      color: white;
+      font-size: 3.5em;
+      text-align: center;
+      width: 100%;
+  }
 
-{%if products%}
-<!-- product view code -->
-<div class="mx-auto grid w-full max-w-7xl items-center space-y-4 px-2 py-10 md:grid-cols-2 md:gap-6 md:space-y-0 lg:grid-cols-4">
-  {%for p in products%}
-    <div class="relative aspect-[16/9]  w-auto rounded-md md:aspect-auto md:h-[400px]">
-      <img
-        src="{{p.image.url}}"
-        alt="AirMax Pro"
-        class="z-0 h-full w-full rounded-md object-cover"
-      />
-      <div class="absolute inset-0 rounded-md bg-gradient-to-t from-gray-900 to-transparent"></div>
-      <div class="absolute bottom-4 left-4 text-left">
-        <h1 class="text-lg font-semibold text-white">{{p.title}}</h1>
-        <p class="mt-2 text-sm text-gray-300">
-          {{p.description}}
-        </p>
-        <p class="mt-2 text-sm text-gray-300">
-          {%if p.average_rating%}
-              Rating : {{p.average_rating}}
-          {%else%}
-            No Rating
-          {%endif%}
-        </p>
-        <a 
-        href="{%url 'product-detail' p.id%}"
-        class="mt-2 inline-flex cursor-pointer items-center text-sm font-semibold text-white">
-          View More →
-        </a>
+  #neck {
+      background-color: white;
+      height: 170px;
+      width: 200px;
+      float: left;
+      padding: 5px;
+      margin: 20px 50px;
+      text-align: center;
+  }
+
+  #img1:hover {
+      transition: transform 1.0s ease;
+      transform: scale(1.2);
+  }
+</style>
+<body>
+  <div class="relative w-full bg-gray-200">
+    <div class="mx-auto flex max-w-7xl items-center justify-between py-3 px-0">
+      <div class="flex justify-start">
+        <span class="font-bold"><i class="fa-solid fa-life-ring"></i> VenusFancy</span>
+      </div>
+      <div class="hidden grow items-start lg:flex">
+        <ul class="ml-12 inline-flex space-x-8">
+          <li class="mt-2">
+            <a href="{% url 'index' %}" class="text-sm font-semibold text-gray-800 hover:text-gray-900">
+              Home
+            </a>
+          </li>
+  
+          {% if not request.user.is_superuser %}
+          <li class="mt-2">
+            <a href="{% url 'mycartitems' %}" class="text-sm font-semibold text-gray-800 hover:text-gray-900">
+              MyCart
+            </a>
+          </li>
+          <li class="mt-2">
+            <a href="{% url 'myorders' %}" class="text-sm font-semibold text-gray-800 hover:text-gray-900">
+              MyOrders
+            </a>
+          </li>
+          <div class="flex justify-center">
+            <form method="post" action="">
+              {% csrf_token %}
+              <select name="type" class="border rounded p-2" required onchange="this.form.submit()">
+                <option value="" disabled {% if selected_type is None %}selected{% endif %}>Select a type</option>
+                <option value="all">All Products</option>
+                {% for type in types %}
+                <option value="{{ type.id }}">{{ type.name }}</option>
+                {% endfor %}
+              </select>
+            </form>
+          </div>
+          {% endif %}
+        </ul>
+      </div>
+      <div class="flex justify-between">
+        <div class="hidden lg:flex space-x-4">
+          <a href="{% url 'profile-edit' request.user.profile.id %}" type="button" class="rounded-md bg-black px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black">
+            Profile
+          </a>
+          <a href="{% url 'sign-out' %}" type="button" class="rounded-md bg-black px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-black/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black">
+            LogOut
+          </a>
+        </div>
+      </div>
+      <div class="lg:hidden">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6 cursor-pointer">
+          <line x1="4" y1="12" x2="20" y2="12"></line>
+          <line x1="4" y1="6" x2="20" y2="6"></line>
+          <line x1="4" y1="18" x2="20" y2="18"></line>
+        </svg>
       </div>
     </div>
-    {%endfor%}
   </div>
-  <!-- <!-end of product view-  --> 
+  
+      
 
-  {%else%}
-  <div class="flex justify-center h-screen mt-5">
-    <h1 class="w-1/4 text-center">
-      <b>No Product Currently Available For This Type</b>
-    </h1>
+      <div class="flex items-center justify-center my-4">
+        <h1 class="w-1/4 text-center">
+          <b>Welcome {{request.user}}</b>
+        </h1>
+      </div>
+
+
+
+      {%if request.user.is_superuser%}
+
+<section>
+  <div class="max-w-screen-xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8 lg:py-16">
+      
+
+      <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 ml-5">
+        <a
+          class="block rounded-xl border border-gray-100 p-4 shadow-sm hover:border-gray-200 hover:ring-1 hover:ring-gray-200 focus:outline-none focus:ring"
+          href="{%url 'myproduct'%}"
+        >
+          <h2 class="mt-3 font-bold text-center flex justify-center items-center">My Product</h2>
+        </a>
+
+        <a
+          class="block rounded-xl border border-gray-100 p-4 shadow-sm hover:border-gray-200 hover:ring-1 hover:ring-gray-200 focus:outline-none focus:ring"
+          href="{%url 'product-add'%}"
+        >
+          <h2 class="mt-3 font-bold text-center flex justify-center items-center">Add Product</h2>
+        </a>
+
+        <a
+          class="block rounded-xl border border-gray-100 p-4 shadow-sm hover:border-gray-200 hover:ring-1 hover:ring-gray-200 focus:outline-none focus:ring"
+          href="{%url 'material-all'%}"
+        >
+          <h2 class="mt-3 font-bold text-center flex justify-center items-center">Material</h2>
+        </a>
+
+        <a
+          class="block rounded-xl border border-gray-100 p-4 shadow-sm hover:border-gray-200 hover:ring-1 hover:ring-gray-200 focus:outline-none focus:ring"
+          href="{%url 'occasion-all'%}"
+        >
+          <h2 class="mt-3 font-bold text-center flex justify-center items-center">Occasion</h2>
+        </a>
+
+        <a
+          class="block rounded-xl border border-gray-100 p-4 shadow-sm hover:border-gray-200 hover:ring-1 hover:ring-gray-200 focus:outline-none focus:ring"
+          href="{%url 'colour-all'%}"
+        >
+          <h2 class="mt-3 font-bold text-center flex justify-center items-center">Colour</h2>
+        </a>
+
+        <a
+          class="block rounded-xl border border-gray-100 p-4 shadow-sm hover:border-gray-200 hover:ring-1 hover:ring-gray-200 focus:outline-none focus:ring"
+          href="{%url 'feature-all'%}"
+        >
+          <h2 class="mt-3 font-bold text-center flex justify-center items-center">Feature</h2>
+        </a>
+
+        <a
+          class="block rounded-xl border border-gray-100 p-4 shadow-sm hover:border-gray-200 hover:ring-1 hover:ring-gray-200 focus:outline-none focus:ring"
+          href="{%url 'type-all'%}"
+        >
+          <h2 class="mt-3 font-bold text-center flex justify-center items-center">Type</h2>
+        </a>
+
+        <a
+          class="block rounded-xl border border-gray-100 p-4 shadow-sm hover:border-gray-200 hover:ring-1 hover:ring-gray-200 focus:outline-none focus:ring"
+          href="{%url 'tag-all'%}"
+        >
+          <h2 class="mt-3 font-bold text-center flex justify-center items-center">Tag</h2>
+        </a>
+
+        <a
+          class="block rounded-xl border border-gray-100 p-4 shadow-sm hover:border-gray-200 hover:ring-1 hover:ring-gray-200 focus:outline-none focus:ring"
+          href="{%url 'size-all'%}"
+        >
+          <h2 class="mt-3 font-bold text-center flex justify-center items-center">Size</h2>
+        </a>
+
+        <a
+          class="block rounded-xl border border-gray-100 p-4 shadow-sm hover:border-gray-200 hover:ring-1 hover:ring-gray-200 focus:outline-none focus:ring"
+          href="{%url 'admin-order'%}"
+        >
+          <h2 class="mt-3 font-bold text-center flex justify-center items-center">Cash on Delivery</h2>
+        </a>
+
+
+
+        
+
+
+      </div>
+    </div>
   </div>
-  {%endif%}
+</section>
 
-  {%endif%}
+      {%endif%}
 
-{% endblock  %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      {%if not request.user.is_superuser%}
+      <div id="carouselExampleCaptions" class="carousel slide" data-bs-ride="carousel" data-bs-interval="2000">
+        <div class="carousel-indicators">
+            <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+            <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="1" aria-label="Slide 2"></button>
+            <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="2" aria-label="Slide 3"></button>
+        </div>
+        <div class="carousel-inner">
+            <!-- First Slide -->
+            <div class="carousel-item active">
+                <div class="container-fluid" style="background-color: black; height:520px;">
+                    <div class="row">
+                        <!-- Image and Text Section -->
+                        <div class="col-6 image-container">
+                            <span class="text-overlay">Venus Fancy</span>
+                            <img src="{%static '/images/download.jpeg' %}" alt="Venus Fancy Collection" style="width: 100%; height:400px; margin-top:40px">
+                        </div>
+                        
+                        <!-- Text Section -->
+                        <div class="col-5 d-flex justify-content-center align-items-center text-white mt-4">
+                            <div>
+                                <h1 style="line-height: 1.8; font-family: cursive; font-size:35px;">Welcome to Venus Fancy Shop!</h1>
+                                <p style="line-height: 1.8; font-family: cursive; font-size: larger;">
+                                    Discover unique accessories that enhance your style at Venus Fancy Shop! Our curated selection includes elegant necklaces, bangles, earrings, bracelets, and more—perfect for any occasion. Enjoy a seamless shopping experience and find your new favorite piece today!
+                  
+                                </p>
+                                <a href="#products" class="btn btn-outline-light mt-4">Shop Now</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="carousel-caption d-none d-md-block">
+                    <p>Adorn Your Story with Timeless Elegance – Only at Venus Fancy</p>
+                </div>
+            </div>
+
+            <!-- Second Slide -->
+            <div class="carousel-item">
+                <div  style="background-color: black; height:520px;">
+                    <center><b><h1 class="p-3" style="color: white;line-height: 1.8; font-family: cursive; font-size:35px;">Our Collection</h1></b></center>
+                    <div id="neck"><img id="img1" style="height: 130px;  width:200px; padding:5px" src="{%static '/images/rings.jpeg' %}" alt="Rings"><h2 style="font-size:25px;">Rings</h2></div>
+                    <div id="neck"><img id="img1" style="height: 130px;  width:200px; padding:5px" src="{%static '/images/earrings.jpeg' %}" alt="Earrings"><h2 style="font-size:25px;">Earrings</h2></div>
+                    <div id="neck"><img id="img1" style="height: 130px;  width:200px; padding:5px" src="{%static '/images/necklace.jpeg' %}" alt="Necklace"><h2 style="font-size:25px;">Necklace</h2></div>
+                    <div id="neck"><img id="img1" style="height: 130px;  width:200px; padding:5px" src="{%static '/images/hairband.jpeg' %}" alt="Hair Band"><h2 style="font-size:25px;">Hair Band</h2></div>
+                    <div id="neck"><img id="img1" style="height: 130px;  width:200px; padding:5px" src="{%static '/images/hairclip.jpeg' %}" alt="Hair Clip"><h2 style="font-size:25px;">Hair Clip</h2></div>
+                    <div id="neck"><img id="img1" style="height: 130px;  width:200px; padding:5px" src="{%static '/images/chain.jpeg' %}" alt="Chain"><h2 style="font-size:25px;">Chain</h2></div>
+                    <div id="neck"><img id="img1" style="height: 130px;  width:200px; padding:5px" src="{%static '/images/Bracelet.jpeg' %}" alt="Bracelet"><h2 style="font-size:25px;">Bracelet</h2></div>
+                    <div id="neck"><img id="img1" style="height: 130px;  width:200px; padding:5px" src="{%static '/images/bangles.jpeg' %}" alt="Bangles"><h2 style="font-size:25px;">Bangles</h2></div>
+                    <div id="neck"><img id="img1" style="height: 130px;  width:200px; padding:5px" src="{%static '/images/anklets.jpeg' %}" alt="Anklets"><h2 style="font-size:25px;">Anklets</h2></div>
+                    <div id="neck"><img id="img1" style="height: 130px;  width:200px; padding:5px" src="{%static '/images/brooches.jpeg' %}" alt="Brooches"><h2 style="font-size:25px;">Brooches</h2></div>
+                </div>
+            </div>
+
+            <!-- Third Slide -->
+            <div class="carousel-item">
+                <div class="container-fluid" style="background-color: black; height:520px;">
+                    <div class="row">
+                        <div class="col-6 image-container">
+                            <img src="{%static '/images/third.jpeg' %}" alt="Unique Accessories" style="width: 60%; height:400px; margin-top:80px; border-radius:5px;">
+                        </div>
+                        
+                        <!-- Text Section -->
+                        <div class="col-5 d-flex justify-content-center align-items-center text-white mt-4">
+                            <div>
+                                <h1 style="line-height: 1.8; font-family: cursive; font-size:35px;">Why Choose Us</h1>
+                                <p style="line-height: 1.8; font-family: cursive; font-size: larger;">
+                                    <b>1. Wide Range of Accessories:</b> Find the perfect accessory with our stunning collection of necklaces, earrings, bangles, and more.<br>
+                                    <b>2. Quality and Style:</b> Each product is crafted with care and precision for a timeless look.<br>
+                                    <b>3. Exceptional Customer Service:</b> We are here to make your shopping experience delightful.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+    
+            </div>
+        </div>
+        
+        <!-- Carousel Controls -->
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+    </div>
+    
+
+
+     
+      {%if products%}
+      <label for="" class="mt-5 mx-5" style="font-size: 30px;"><b>Products</b></label> 
+      <!-- product view code -->
+       <section id="products">
+      <div class="mx-auto grid w-full max-w-7xl items-center space-y-4 px-2 py-10 md:grid-cols-2 md:gap-6 md:space-y-0 lg:grid-cols-4">
+        {%for p in products%}
+          <div class="relative aspect-[16/9]  w-auto rounded-md md:aspect-auto md:h-[400px]">
+            <img
+              src="{{p.image.url}}"
+              alt="AirMax Pro"
+              class="z-0 h-full w-full rounded-md object-cover"
+            />
+            <div class="absolute inset-0 rounded-md bg-gradient-to-t from-gray-900 to-transparent"></div>
+            <div class="absolute bottom-4 left-4 text-left">
+              <h1 class="text-lg font-semibold text-white">{{p.title}}</h1>
+              <p class="mt-2 text-sm text-gray-300">
+                {{p.description}}
+              </p>
+              <p class="mt-2 text-sm text-gray-300">
+                {%if p.average_rating%}
+                    Rating : {{p.average_rating}}
+                {%else%}
+                  No Rating
+                {%endif%}
+              </p>
+              <a 
+              href="{%url 'product-detail' p.id%}"
+              class="mt-2 inline-flex cursor-pointer items-center text-sm font-semibold text-white">
+                View More →
+              </a>
+            </div>
+          </div>
+          {%endfor%}
+        </div>
+        <!-- <!-end of product view-  --> 
+      
+        {%else%}
+        <div class="flex justify-center h-screen mt-5">
+          <h1 class="w-1/4 text-center">
+            <b>No Product Currently Available For This Type</b>
+          </h1>
+        </div>
+        {%endif%}
+
+      </section>
+      {%endif%}
+
+</body>
+</html>
+

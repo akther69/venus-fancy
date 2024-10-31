@@ -75,8 +75,12 @@ urlpatterns = [
     path("cashondelivery/all/",views.CashOnDeliveryOrderListView.as_view(),name="admin-order"),
     path("payment/done/<int:pk>/",views.PaymentDoneView.as_view(),name="payment-done"),
     path("address/add/",views.AddressCreateView.as_view(),name="address-add"),
-    path("address/store/edit/<int:pk>",views.AddressStoreEditView.as_view(),name="address-store-edit"),
-    path("address/store/remove/<int:pk>",views.AddressStoreDeleteView.as_view(),name="address-store-delete")
+    path("address/store/edit/<int:pk>/",views.AddressStoreEditView.as_view(),name="address-store-edit"),
+    path("address/store/remove/<int:pk>/",views.AddressStoreDeleteView.as_view(),name="address-store-delete"),
+    path("product/buynow/all/",views.BuyNowListView.as_view(),name="buynow-all"),
+    path("address/buynow/",views.BuyNowAddressView.as_view(),name="buynow-address"),
+    path("buynow/online/payment/",views.BuyNowCheckOutView.as_view(),name="buynow-online"),
+    
 
     
 
