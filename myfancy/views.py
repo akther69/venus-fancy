@@ -493,8 +493,8 @@ class AddressView(View):
 
         form_instance = AddressForm()
 
-        qs = AddressStore.objects.all()
-
+        qs = AddressStore.objects.filter(user_object=request.user)
+        
         return render(request, "shop/address.html", {"form": form_instance, "address": qs})
 
     
@@ -619,7 +619,7 @@ class BuyNowAddressView(View):
 
         form_instance = AddressForm()
 
-        qs = AddressStore.objects.all()
+        qs = AddressStore.objects.filter(user_object=request.user)
 
         return render(request, "shop/bnaddress.html", {"form": form_instance, "address": qs})
 
@@ -665,7 +665,15 @@ class BuyNowAddressView(View):
 
             if form_instance.instance.payment_method == "cash_on_delivery":
 
-                buynow_item = BuyNow.objects.filter(user_object=request.user,is_order_placed=False).last()
+                buynow_items = BuyNow.objects.filter(user_object=request.user, is_order_placed=False)
+
+                if buynow_items.count() > 1:
+                    
+                    buynow_item = buynow_items.last()
+                    
+                else:
+                    
+                    buynow_item = buynow_items.first()
                 
                 total=buynow_item.item_total_price
 
@@ -855,7 +863,15 @@ class BuyNowCheckOutView(View):
         
         client = razorpay.Client(auth=(key_ID,key_SECRET))
         
-        buynow_item=BuyNow.objects.filter(user_object=request.user,is_order_placed=False).last()
+        buynow_items = BuyNow.objects.filter(user_object=request.user, is_order_placed=False)
+
+        if buynow_items.count() > 1:
+            
+            buynow_item = buynow_items.last()
+            
+        else:
+            
+            buynow_item = buynow_items.first()
         
         amount=buynow_item.item_total_price*100
 
